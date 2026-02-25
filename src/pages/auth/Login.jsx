@@ -34,8 +34,11 @@ const Login = () => {
     try {
       const { data } = await API.post("/auth/login", formData);
 
+      console.log("data: ", data);
       // Only allow merchant role on this app
-      if (data.role !== "merchant") {
+      console.log("data: ", data?.user?.role);
+
+      if (data?.user?.role !== "merchant") {
         toast.error("This app is for merchants only");
         setLoading(false);
         return;
@@ -45,15 +48,15 @@ const Login = () => {
       dispatch(
         loginSuccess({
           user: {
-            _id: data._id,
-            username: data.username,
-            email: data.email,
-            role: data.role,
-            avatar: data.avatar,
-            nickname: data.nickname,
+            _id: data?.user?._id,
+            username: data?.user?.username,
+            email: data?.user?.email,
+            role: data?.user?.role,
+            avatar: data?.user?.avatar,
+            nickname: data?.user?.nickname,
           },
-          token: data.token,
-          merchant: data.merchant,
+          token: data?.token,
+          merchant: data?.user?.merchant,
         }),
       );
 

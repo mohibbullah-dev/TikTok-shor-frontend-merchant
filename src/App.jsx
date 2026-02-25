@@ -64,6 +64,8 @@ import Questions from "./pages/faq/Questions";
 // Protected route component
 const ProtectedRoute = ({ children }) => {
   const { token, user } = useSelector((state) => state.auth);
+  console.log("const { token} : ", token);
+  console.log("const { user } : ", user);
 
   if (!token) {
     return <Navigate to="/login" replace />;
