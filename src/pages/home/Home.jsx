@@ -1,34 +1,99 @@
 import { useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { useQuery } from "@tanstack/react-query";
-import { toast } from "react-toastify";
 import { updateMerchant } from "../../store/authSlice";
 import API from "../../api/axios";
 import BottomNav from "../../components/BottomNav";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
-const Home = () => {
+// ─── Helpers ──────────────────────────────────────────────────
+const statusLabel = (s) =>
+  ({
+    pendingPayment: "Pending Pickup",
+    pendingShipment: "Processing",
+    shipped: "Shipped",
+    completed: "Completed",
+    cancelled: "Cancelled",
+  })[s] || s;
+const statusColor = (s) =>
+  ({
+    pendingPayment: "#f59e0b",
+    pendingShipment: "#3b82f6",
+    shipped: "#8b5cf6",
+    completed: "#22c55e",
+    cancelled: "#ef4444",
+  })[s] || "#888";
+const vipPalette = {
+  0: "#9ca3af",
+  1: "#cd7f32",
+  2: "#aaa",
+  3: "#f59e0b",
+  4: "#06b6d4",
+  5: "#9c27b0",
+  6: "#f02d65",
+};
+
+// ─── Shared section card ──────────────────────────────────────
+// title shown INSIDE the card header, like every professional app
+const Section = ({ title, topRight, children, noPad = false }) => (
+  <div
+    className="bg-white rounded-2xl overflow-hidden"
+    style={{ boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}
+  >
+    {/* Card header */}
+    {title && (
+      <div className="flex items-center justify-between px-4 pt-3.5 pb-2">
+        <p className="text-gray-800 text-sm font-bold">{title}</p>
+        {topRight}
+      </div>
+    )}
+    {/* Divider only when there's a title */}
+    {title && <div className="h-px bg-gray-100" />}
+    {/* Body */}
+    <div className={noPad ? "" : "p-4"}>{children}</div>
+  </div>
+);
+
+// ─── Tooltip for chart ────────────────────────────────────────
+const ChartTip = ({ active, payload, label }) => {
+  if (!active || !payload?.length) return null;
+  return (
+    <div
+      className="bg-white px-3 py-2 rounded-xl text-xs"
+      style={{ boxShadow: "0 4px 16px rgba(0,0,0,0.12)" }}
+    >
+      <p className="text-gray-400 mb-0.5">{label}</p>
+      <p className="font-bold text-gray-800">${payload[0].value.toFixed(2)}</p>
+    </div>
+  );
+};
+
+export default function Home() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { user, merchant } = useSelector((state) => state.auth);
+  const { user, merchant } = useSelector((s) => s.auth);
 
-  // ─────────────────────────────────────────
-  // Fetch merchant store data
-  // ─────────────────────────────────────────
-  const { data: storeData, isLoading: storeLoading } = useQuery({
+  // ── Queries ────────────────────────────────────────────────
+  const { data: storeData, isLoading } = useQuery({
     queryKey: ["myStore"],
     queryFn: async () => {
       const { data } = await API.get("/merchants/my-store");
       return data;
     },
-    onSuccess: (data) => {
-      dispatch(updateMerchant(data));
-    },
   });
+  useEffect(() => {
+    if (storeData) dispatch(updateMerchant(storeData));
+  }, [storeData]);
 
-  // ─────────────────────────────────────────
-  // Fetch today's financial summary
-  // ─────────────────────────────────────────
   const { data: financeData } = useQuery({
     queryKey: ["financeSummary"],
     queryFn: async () => {
@@ -37,20 +102,14 @@ const Home = () => {
     },
   });
 
-  // ─────────────────────────────────────────
-  // Fetch recent orders (latest 3)
-  // ─────────────────────────────────────────
   const { data: ordersData } = useQuery({
     queryKey: ["recentOrders"],
     queryFn: async () => {
-      const { data } = await API.get("/orders/my-orders?limit=3");
+      const { data } = await API.get("/orders/my-orders?limit=5");
       return data;
     },
   });
 
-  // ─────────────────────────────────────────
-  // Fetch unread notices count
-  // ─────────────────────────────────────────
   const { data: noticesData } = useQuery({
     queryKey: ["unreadNotices"],
     queryFn: async () => {
@@ -59,414 +118,526 @@ const Home = () => {
     },
   });
 
+  const { data: faqData } = useQuery({
+    queryKey: ["faqHome"],
+    queryFn: async () => {
+      const { data } = await API.get("/questions");
+      return data;
+    },
+  });
+
+  // ── Derived ────────────────────────────────────────────────
   const store = storeData || merchant;
   const unreadCount = noticesData?.total || 0;
-  const todayStatement = financeData?.statements?.[0];
+  const todayStats = financeData?.statements?.[0];
+  const vipLvl = store?.vipLevel || 0;
 
-  // VIP level colors
-  const vipColors = {
-    0: "#888",
-    1: "#cd7f32",
-    2: "#aaa",
-    3: "#ffd700",
-    4: "#00bcd4",
-    5: "#9c27b0",
-    6: "#f02d65",
-  };
+  // chart: last 7 days oldest→newest
+  const chartData = financeData?.statements
+    ? [...(financeData.statements || [])]
+        .slice(0, 7)
+        .reverse()
+        .map((s) => ({
+          date: s._id ? s._id.slice(5) : "",
+          profit: parseFloat(s.totalProfit) || 0,
+        }))
+    : [];
 
-  // Order status label
-  const getStatusLabel = (status) => {
-    const labels = {
-      pendingPayment: "Pending Pickup",
-      pendingShipment: "Processing",
-      shipped: "Shipped",
-      completed: "Completed",
-      cancelled: "Cancelled",
-    };
-    return labels[status] || status;
-  };
+  // FAQ: one row per category
+  const faqCategories = faqData
+    ? [...new Map(faqData.map((q) => [q.category, q.category])).values()]
+    : [];
 
-  const getStatusColor = (status) => {
-    const colors = {
-      pendingPayment: "#f59e0b",
-      pendingShipment: "#3b82f6",
-      shipped: "#8b5cf6",
-      completed: "#22c55e",
-      cancelled: "#ef4444",
-    };
-    return colors[status] || "#888";
-  };
+  const actions = [
+    { emoji: "💳", label: "Recharge", path: "/recharge" },
+    { emoji: "💸", label: "Withdraw", path: "/withdraw" },
+    { emoji: "👑", label: "VIP", path: "/vip" },
+    { emoji: "📅", label: "Sign In", path: "/calendar" },
+    { emoji: "🛍️", label: "Products", path: "/products" },
+    { emoji: "📊", label: "Finance", path: "/finance" },
+    { emoji: "📢", label: "Notices", path: "/messages" },
+    { emoji: "❓", label: "Help", path: "/faq" },
+  ];
 
-  if (storeLoading) {
+  // ── Loading ────────────────────────────────────────────────
+  if (isLoading)
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="flex flex-col items-center gap-3">
-          <svg
-            className="animate-spin h-10 w-10"
-            style={{ color: "#f02d65" }}
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8v8H4z"
-            />
-          </svg>
-          <p className="text-gray-400 text-sm">Loading store...</p>
-        </div>
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ background: "#f2f3f7" }}
+      >
+        <svg
+          className="animate-spin h-9 w-9"
+          style={{ color: "#f02d65" }}
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          />
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8v8H4z"
+          />
+        </svg>
       </div>
     );
-  }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      {/* ── TOP BAR ── */}
+    <div className="min-h-screen pb-28" style={{ background: "#f2f3f7" }}>
+      {/* ══════════════════════════════════════════════════
+          HERO — gradient header, rounded bottom corners
+      ══════════════════════════════════════════════════ */}
       <div
-        className="sticky top-0 z-40 px-4 py-3 flex items-center
-        justify-between"
+        className="px-4 pt-11 pb-6"
         style={{
-          background: "linear-gradient(135deg, #f02d65 0%, #ff6b35 100%)",
+          background: "linear-gradient(145deg, #f02d65 0%, #ff6035 100%)",
+          borderBottomLeftRadius: 24,
+          borderBottomRightRadius: 24,
         }}
       >
-        {/* Store info */}
-        <div className="flex items-center gap-2">
-          {/* Avatar */}
-          <div
-            className="w-9 h-9 rounded-full bg-white/30 overflow-hidden
-            flex items-center justify-center border-2 border-white/50"
-          >
-            {store?.storeLogo ? (
-              <img
-                src={store.storeLogo}
-                alt="logo"
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <span className="text-white text-lg">🏪</span>
-            )}
-          </div>
-          <div>
-            <p className="text-white font-bold text-sm leading-none">
-              {store?.storeName || user?.username}
-            </p>
-            <div className="flex items-center gap-1 mt-0.5">
-              <span
-                className="text-[10px] px-1.5 py-0.5 rounded-full
-                font-bold text-white"
+        {/* Row 1: avatar / name / action icons */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2.5">
+            {/* Avatar + VIP badge */}
+            <div className="relative flex-shrink-0">
+              <div className="w-10 h-10 rounded-full border-2 border-white/70 overflow-hidden bg-white/30 flex items-center justify-center">
+                {store?.storeLogo ? (
+                  <img
+                    src={store.storeLogo}
+                    alt=""
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-lg">🏪</span>
+                )}
+              </div>
+              <div
+                className="absolute -bottom-0.5 -right-0.5 w-[18px] h-[18px] rounded-full border-2 border-white flex items-center justify-center"
                 style={{
-                  background: vipColors[store?.vipLevel || 0],
+                  background: vipPalette[vipLvl],
+                  fontSize: 7,
+                  color: "white",
+                  fontWeight: 800,
                 }}
               >
-                VIP{store?.vipLevel || 0}
-              </span>
-              <span className="text-white/70 text-[10px]">
-                ID: {store?.merchantId}
-              </span>
+                {vipLvl}
+              </div>
             </div>
+            {/* Store name + meta */}
+            <div>
+              <p className="text-white font-bold text-sm leading-tight">
+                {store?.storeName || user?.username}
+              </p>
+              <p className="text-white/60 text-[10px] mt-0.5">
+                VIP{vipLvl} &nbsp;·&nbsp; ID: {store?.merchantId}
+              </p>
+            </div>
+          </div>
+
+          {/* Bell + Chat */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => navigate("/messages")}
+              className="relative w-8 h-8 rounded-full bg-white/25 flex items-center justify-center active:bg-white/40"
+            >
+              <span className="text-base">🔔</span>
+              {unreadCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-[14px] h-3.5 bg-yellow-400 rounded-full text-[8px] font-bold text-white flex items-center justify-center px-0.5">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => navigate("/chat")}
+              className="w-8 h-8 rounded-full bg-white/25 flex items-center justify-center active:bg-white/40"
+            >
+              <span className="text-base">💬</span>
+            </button>
           </div>
         </div>
 
-        {/* Right icons */}
-        <div className="flex items-center gap-3">
-          {/* Notification bell */}
-          <button onClick={() => navigate("/messages")} className="relative">
-            <span className="text-white text-xl">🔔</span>
-            {unreadCount > 0 && (
-              <span
-                className="absolute -top-1 -right-1 w-4 h-4
-                bg-yellow-400 rounded-full text-[9px] font-bold
-                text-white flex items-center justify-center"
-              >
-                {unreadCount > 9 ? "9+" : unreadCount}
-              </span>
-            )}
-          </button>
-          {/* Chat */}
-          <button onClick={() => navigate("/chat")}>
-            <span className="text-white text-xl">💬</span>
-          </button>
-        </div>
-      </div>
-
-      {/* ── BALANCE CARD ── */}
-      <div
-        className="mx-4 -mt-0 rounded-2xl p-5 shadow-lg"
-        style={{
-          background: "linear-gradient(135deg, #f02d65 0%, #ff6b35 100%)",
-        }}
-      >
-        <p className="text-white/70 text-xs mb-1">Available Balance</p>
-        <p className="text-white text-3xl font-bold tracking-tight">
+        {/* Row 2: balance */}
+        <p className="text-white/60 text-[11px] mb-0.5">Available Balance</p>
+        <p
+          className="text-white font-extrabold mb-0.5"
+          style={{ fontSize: 32, letterSpacing: -1, lineHeight: 1 }}
+        >
           ${(store?.balance || 0).toFixed(2)}
         </p>
+        <p className="text-white/50 text-[11px] mb-4">
+          Pending: ${(store?.pendingAmount || 0).toFixed(2)}
+          &nbsp;·&nbsp; Total Profit: ${(store?.totalProfit || 0).toFixed(2)}
+        </p>
 
-        {/* Pending amount */}
-        <div className="flex items-center gap-1 mt-1">
-          <span className="text-white/60 text-xs">
-            Pending: ${(store?.pendingAmount || 0).toFixed(2)}
-          </span>
-          <span className="text-white/40 text-xs">•</span>
-          <span className="text-white/60 text-xs">
-            Total Profit: ${(store?.totalProfit || 0).toFixed(2)}
-          </span>
-        </div>
-
-        {/* Action buttons */}
-        <div className="flex gap-3 mt-4">
+        {/* Row 3: action buttons */}
+        <div className="flex gap-3">
           <button
             onClick={() => navigate("/recharge")}
-            className="flex-1 py-2.5 bg-white rounded-xl font-bold text-sm
-              active:scale-95 transition-all shadow-sm"
-            style={{ color: "#f02d65" }}
+            className="flex-1 py-2.5 rounded-xl font-bold text-sm active:opacity-80"
+            style={{ background: "rgba(255,255,255,0.95)", color: "#f02d65" }}
           >
             + Recharge
           </button>
           <button
             onClick={() => navigate("/withdraw")}
-            className="flex-1 py-2.5 bg-white/20 rounded-xl font-bold
-              text-sm text-white active:scale-95 transition-all
-              border border-white/30"
+            className="flex-1 py-2.5 rounded-xl font-bold text-sm text-white border border-white/40 active:opacity-80"
+            style={{ background: "rgba(255,255,255,0.18)" }}
           >
             Withdraw
           </button>
         </div>
       </div>
 
-      {/* ── TODAY'S STATS ── */}
-      <div className="mx-4 mt-4 bg-white rounded-2xl p-4 shadow-sm">
-        <p className="text-gray-500 text-xs font-medium mb-3">
-          Today's Performance
-        </p>
-        <div className="grid grid-cols-3 gap-3">
-          {[
-            {
-              label: "Orders",
-              value: todayStatement?.totalOrders || 0,
-              icon: "📦",
-              color: "#3b82f6",
-            },
-            {
-              label: "Sales",
-              value: `$${(todayStatement?.totalProfit || 0).toFixed(0)}`,
-              icon: "💰",
-              color: "#22c55e",
-            },
-            {
-              label: "Profit",
-              value: `$${(todayStatement?.totalProfit || 0).toFixed(0)}`,
-              icon: "📈",
-              color: "#f02d65",
-            },
-          ].map((stat, i) => (
-            <div
-              key={i}
-              className="flex flex-col items-center p-3
-              bg-gray-50 rounded-xl"
-            >
-              <span className="text-2xl mb-1">{stat.icon}</span>
-              <p className="font-bold text-base" style={{ color: stat.color }}>
-                {stat.value}
-              </p>
-              <p className="text-gray-400 text-[11px]">{stat.label}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ── QUICK ACTIONS ── */}
-      <div className="mx-4 mt-4 bg-white rounded-2xl p-4 shadow-sm">
-        <p className="text-gray-500 text-xs font-medium mb-3">Quick Actions</p>
-        <div className="grid grid-cols-4 gap-2">
-          {[
-            { icon: "💳", label: "Recharge", path: "/recharge" },
-            { icon: "💸", label: "Withdraw", path: "/withdraw" },
-            { icon: "👑", label: "VIP", path: "/vip" },
-            { icon: "📅", label: "Sign In", path: "/calendar" },
-            { icon: "🛍️", label: "Products", path: "/products" },
-            { icon: "📊", label: "Finance", path: "/finance" },
-            { icon: "📢", label: "Notices", path: "/messages" },
-            { icon: "❓", label: "Help", path: "/faq" },
-          ].map((action, i) => (
-            <button
-              key={i}
-              onClick={() => navigate(action.path)}
-              className="flex flex-col items-center gap-1.5
-                active:scale-90 transition-all"
-            >
-              <div
-                className="w-12 h-12 bg-pink-50 rounded-xl
-                flex items-center justify-center shadow-sm
-                border border-pink-100"
-              >
-                <span className="text-2xl">{action.icon}</span>
+      {/* ══════════════════════════════════════════════════
+          PAGE BODY — consistent 12px gap between cards
+      ══════════════════════════════════════════════════ */}
+      <div className="flex flex-col gap-3 px-4 pt-4">
+        {/* ── TODAY'S PERFORMANCE ── */}
+        <Section title="Today's Performance" noPad>
+          <div className="grid grid-cols-3 divide-x divide-gray-100">
+            {[
+              {
+                emoji: "📦",
+                val: todayStats?.totalOrders ?? 0,
+                label: "Orders",
+                color: "#3b82f6",
+              },
+              {
+                emoji: "💰",
+                val: `$${(todayStats?.totalProfit || 0).toFixed(2)}`,
+                label: "Sales",
+                color: "#22c55e",
+              },
+              {
+                emoji: "📈",
+                val: `$${(todayStats?.totalProfit || 0).toFixed(2)}`,
+                label: "Profit",
+                color: "#f02d65",
+              },
+            ].map((s, i) => (
+              <div key={i} className="flex flex-col items-center py-4 gap-1">
+                <span className="text-[26px] leading-none">{s.emoji}</span>
+                <p
+                  className="font-bold text-[15px] leading-none mt-1"
+                  style={{ color: s.color }}
+                >
+                  {s.val}
+                </p>
+                <p className="text-gray-400 text-[11px]">{s.label}</p>
               </div>
-              <span className="text-[10px] text-gray-500 font-medium">
-                {action.label}
-              </span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* ── STORE CREDIT ── */}
-      <div className="mx-4 mt-4 bg-white rounded-2xl p-4 shadow-sm">
-        <div className="flex items-center justify-between mb-3">
-          <p className="text-gray-500 text-xs font-medium">Store Health</p>
-          <span className="text-xs text-gray-400">
-            ⭐ {(store?.starRating || 0).toFixed(1)}/5.0
-          </span>
-        </div>
-
-        {/* Credit Score Bar */}
-        <div className="flex items-center justify-between mb-1.5">
-          <span className="text-xs text-gray-500">Credit Score</span>
-          <span
-            className="text-xs font-bold"
-            style={{
-              color: (store?.creditScore || 100) >= 80 ? "#22c55e" : "#ef4444",
-            }}
-          >
-            {store?.creditScore || 100}/100
-          </span>
-        </div>
-        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-          <div
-            className="h-full rounded-full transition-all"
-            style={{
-              width: `${store?.creditScore || 100}%`,
-              background:
-                (store?.creditScore || 100) >= 80
-                  ? "linear-gradient(90deg, #22c55e, #86efac)"
-                  : "linear-gradient(90deg, #ef4444, #fca5a5)",
-            }}
-          />
-        </div>
-      </div>
-
-      {/* ── RECENT ORDERS ── */}
-      <div className="mx-4 mt-4 bg-white rounded-2xl p-4 shadow-sm">
-        <div className="flex items-center justify-between mb-3">
-          <p className="text-gray-700 text-sm font-bold">Recent Orders</p>
-          <button
-            onClick={() => navigate("/orders")}
-            className="text-xs font-medium"
-            style={{ color: "#f02d65" }}
-          >
-            View All →
-          </button>
-        </div>
-
-        {ordersData?.orders?.length === 0 || !ordersData ? (
-          <div className="text-center py-8">
-            <span className="text-4xl">📭</span>
-            <p className="text-gray-400 text-sm mt-2">No orders yet</p>
-            <p className="text-gray-300 text-xs">
-              Orders will appear here when dispatched
-            </p>
+            ))}
           </div>
-        ) : (
-          <div className="space-y-3">
-            {ordersData?.orders?.map((order) => (
+        </Section>
+
+        {/* ── QUICK ACTIONS ── */}
+        <Section title="Quick Actions">
+          <div className="grid grid-cols-4 gap-y-4 gap-x-2">
+            {actions.map((a, i) => (
+              <button
+                key={i}
+                onClick={() => navigate(a.path)}
+                className="flex flex-col items-center gap-1.5 active:opacity-50 transition-opacity"
+              >
+                <div
+                  className="w-12 h-12 rounded-2xl flex items-center justify-center"
+                  style={{
+                    background: "#fdf2f5",
+                    border: "1.5px solid #fce7ec",
+                  }}
+                >
+                  <span style={{ fontSize: 22 }}>{a.emoji}</span>
+                </div>
+                <span className="text-gray-500 text-[10px] font-medium text-center leading-tight">
+                  {a.label}
+                </span>
+              </button>
+            ))}
+          </div>
+        </Section>
+
+        {/* ── STORE HEALTH ── */}
+        <Section title="Store Health">
+          {/* Stars */}
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex gap-0.5">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <span
+                  key={i}
+                  style={{
+                    color:
+                      i <= Math.floor(store?.starRating || 5)
+                        ? "#f59e0b"
+                        : "#e5e7eb",
+                    fontSize: 20,
+                  }}
+                >
+                  ★
+                </span>
+              ))}
+            </div>
+            <span className="text-gray-500 text-xs font-semibold">
+              {(store?.starRating || 0).toFixed(1)} / 5.0
+            </span>
+          </div>
+          {/* Credit bar */}
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-gray-500 text-xs">Credit Score</span>
+            <span
+              className="text-xs font-bold"
+              style={{
+                color:
+                  (store?.creditScore || 100) >= 80 ? "#22c55e" : "#ef4444",
+              }}
+            >
+              {store?.creditScore || 100} / 100
+            </span>
+          </div>
+          <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all duration-700"
+              style={{
+                width: `${store?.creditScore || 100}%`,
+                background:
+                  (store?.creditScore || 100) >= 80
+                    ? "linear-gradient(90deg,#22c55e,#86efac)"
+                    : "linear-gradient(90deg,#ef4444,#fca5a5)",
+              }}
+            />
+          </div>
+        </Section>
+
+        {/* ── RECENT ORDERS ── */}
+        <Section
+          title="Recent Orders"
+          noPad
+          topRight={
+            <button
+              onClick={() => navigate("/orders")}
+              className="text-xs font-semibold"
+              style={{ color: "#f02d65" }}
+            >
+              View All →
+            </button>
+          }
+        >
+          {!ordersData?.orders?.length ? (
+            <div className="flex flex-col items-center py-10 gap-2">
+              <span className="text-4xl">📭</span>
+              <p className="text-gray-400 text-sm">No orders yet</p>
+              <p className="text-gray-300 text-xs">
+                Orders appear when dispatched
+              </p>
+            </div>
+          ) : (
+            ordersData.orders.map((order, i) => (
               <button
                 key={order._id}
                 onClick={() => navigate(`/orders/${order._id}`)}
-                className="w-full flex items-center justify-between
-                  p-3 bg-gray-50 rounded-xl active:bg-gray-100
-                  transition-all text-left"
+                className={`w-full flex items-center gap-3 px-4 py-3 active:bg-gray-50 text-left transition-colors ${
+                  i < ordersData.orders.length - 1
+                    ? "border-b border-gray-50"
+                    : ""
+                }`}
               >
-                <div className="flex items-center gap-3">
-                  {/* Product image */}
-                  <div
-                    className="w-10 h-10 bg-pink-100 rounded-lg
-                    flex items-center justify-center overflow-hidden"
-                  >
-                    {order.products?.[0]?.image ? (
-                      <img
-                        src={order.products[0].image}
-                        alt=""
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <span className="text-lg">📦</span>
-                    )}
-                  </div>
-                  <div>
-                    <p
-                      className="text-gray-700 text-xs font-medium
-                      line-clamp-1 max-w-[150px]"
-                    >
-                      {order.products?.[0]?.title || "Product"}
-                      {order.products?.length > 1 &&
-                        ` +${order.products.length - 1}`}
-                    </p>
-                    <p className="text-gray-400 text-[10px] mt-0.5">
-                      #{order.orderSn?.slice(-8)}
-                    </p>
-                  </div>
+                <div className="w-11 h-11 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0 flex items-center justify-center">
+                  {order.products?.[0]?.image ? (
+                    <img
+                      src={order.products[0].image}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-xl">📦</span>
+                  )}
                 </div>
-
-                <div className="flex flex-col items-end gap-1">
+                <div className="flex-1 min-w-0">
+                  <p className="text-gray-700 text-xs font-semibold line-clamp-1">
+                    {order.products?.[0]?.title || "Product"}
+                    {order.products?.length > 1 &&
+                      ` +${order.products.length - 1}`}
+                  </p>
+                  <p className="text-gray-400 text-[10px] mt-0.5">
+                    #{order.orderSn?.slice(-8)}
+                  </p>
+                </div>
+                <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
                   <span
-                    className="text-[10px] px-2 py-0.5 rounded-full
-                      font-medium text-white"
-                    style={{
-                      background: getStatusColor(order.status),
-                    }}
+                    className="text-[10px] px-2 py-0.5 rounded-full text-white font-semibold"
+                    style={{ background: statusColor(order.status) }}
                   >
-                    {getStatusLabel(order.status)}
+                    {statusLabel(order.status)}
                   </span>
-                  <span
-                    className="text-xs font-bold"
-                    style={{ color: "#22c55e" }}
-                  >
+                  <span className="text-xs font-bold text-green-500">
                     +${order.earnings?.toFixed(2)}
                   </span>
                 </div>
               </button>
-            ))}
-          </div>
-        )}
-      </div>
+            ))
+          )}
+        </Section>
 
-      {/* ── ANNOUNCEMENT BANNER ── */}
-      <div
-        className="mx-4 mt-4 mb-4 p-4 rounded-2xl"
-        style={{
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        }}
-      >
-        <div className="flex items-center gap-3">
-          <span className="text-3xl">🎁</span>
-          <div>
+        {/* ── SALES DATA CURVE ── */}
+        <Section title="Sales Data Curve">
+          {chartData.length === 0 ? (
+            /* Empty state: flat line exactly like demo */
+            <div className="relative" style={{ height: 148 }}>
+              {/* Y-axis numbers */}
+              <div className="absolute left-0 top-0 bottom-5 w-5 flex flex-col justify-between">
+                {["1", "0.8", "0.6", "0.4", "0.2", "0"].map((v) => (
+                  <span
+                    key={v}
+                    className="text-[9px] text-gray-300 leading-none"
+                  >
+                    {v}
+                  </span>
+                ))}
+              </div>
+              {/* Horizontal grid lines */}
+              <div className="absolute left-6 right-0 top-0 bottom-5 flex flex-col justify-between pointer-events-none">
+                {[0, 1, 2, 3, 4, 5].map((i) => (
+                  <div key={i} className="w-full border-t border-gray-100" />
+                ))}
+              </div>
+              {/* Flat data line */}
+              <div
+                className="absolute left-6 right-0 bottom-5"
+                style={{ borderTop: "2px solid #93c5fd" }}
+              />
+              {/* Dots on line */}
+              <div className="absolute left-6 right-0 bottom-[17px] flex justify-between px-1">
+                {[0, 1, 2, 3, 4, 5, 6].map((i) => (
+                  <div key={i} className="w-2 h-2 rounded-full bg-blue-300" />
+                ))}
+              </div>
+              {/* X-axis dates */}
+              <div className="absolute left-6 right-0 bottom-0 flex justify-between">
+                {[
+                  "02-09",
+                  "02-11",
+                  "02-13",
+                  "02-15",
+                  "02-17",
+                  "02-19",
+                  "02-21",
+                ].map((d) => (
+                  <span key={d} className="text-[8px] text-gray-300">
+                    {d}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={148}>
+              <LineChart
+                data={chartData}
+                margin={{ top: 4, right: 4, left: -24, bottom: 4 }}
+              >
+                <CartesianGrid stroke="#f3f4f6" vertical={false} />
+                <XAxis
+                  dataKey="date"
+                  tick={{ fontSize: 9, fill: "#9ca3af" }}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <YAxis
+                  tick={{ fontSize: 9, fill: "#9ca3af" }}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <Tooltip content={<ChartTip />} />
+                <Line
+                  type="monotone"
+                  dataKey="profit"
+                  stroke="#f02d65"
+                  strokeWidth={2}
+                  dot={{ fill: "#f02d65", r: 3, strokeWidth: 0 }}
+                  activeDot={{ r: 5, strokeWidth: 0 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          )}
+        </Section>
+
+        {/* ── DAILY SIGN-IN BANNER ── */}
+        <button
+          onClick={() => navigate("/calendar")}
+          className="w-full rounded-2xl p-4 flex items-center gap-3 active:opacity-80 transition-all"
+          style={{
+            background: "linear-gradient(135deg,#7c3aed 0%,#4f46e5 100%)",
+            boxShadow: "0 4px 14px rgba(124,58,237,0.30)",
+          }}
+        >
+          <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
+            <span className="text-2xl">🎁</span>
+          </div>
+          <div className="flex-1 text-left">
             <p className="text-white font-bold text-sm">Daily Sign-In Reward</p>
-            <p className="text-white/70 text-xs">
+            <p className="text-white/60 text-xs mt-0.5">
               Sign in every day and earn $15 bonus!
             </p>
           </div>
-          <button
-            onClick={() => navigate("/calendar")}
-            className="ml-auto bg-white/20 px-3 py-1.5 rounded-lg
-              text-white text-xs font-bold border border-white/30
-              active:scale-95 transition-all whitespace-nowrap"
-          >
-            Claim →
-          </button>
-        </div>
+          <div className="px-3 py-1.5 rounded-xl bg-white/20 border border-white/30 flex-shrink-0">
+            <span className="text-white text-xs font-bold">Claim →</span>
+          </div>
+        </button>
+
+        {/* ── FAQ — category list like demo ── */}
+        <Section title="Frequently Asked Questions" noPad>
+          {faqCategories.length > 0
+            ? faqCategories.map((cat, i) => (
+                <button
+                  key={cat}
+                  onClick={() => navigate("/faq")}
+                  className={`w-full flex items-center justify-between px-4 py-3.5 active:bg-gray-50 text-left ${
+                    i < faqCategories.length - 1
+                      ? "border-b border-gray-100"
+                      : ""
+                  }`}
+                >
+                  <span className="text-gray-700 text-sm">{cat}</span>
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="w-4 h-4 flex-shrink-0"
+                    fill="none"
+                    stroke="#9ca3af"
+                    strokeWidth="2"
+                  >
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </button>
+              ))
+            : // Skeleton rows while loading
+              [...Array(7)].map((_, i) => (
+                <div
+                  key={i}
+                  className={`flex items-center justify-between px-4 py-3.5 ${i < 6 ? "border-b border-gray-100" : ""}`}
+                >
+                  <div className="h-3 bg-gray-100 rounded-md w-44 animate-pulse" />
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="#d1d5db"
+                    strokeWidth="2"
+                  >
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </div>
+              ))}
+        </Section>
+
+        {/* bottom spacer */}
+        <div className="h-2" />
       </div>
 
-      {/* Bottom Nav */}
       <BottomNav />
     </div>
   );
-};
-
-export default Home;
+}

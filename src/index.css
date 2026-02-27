@@ -24,7 +24,7 @@
 body {
   font-family: var(--font-family-sans);
   background-color: #f8f9fa;
-  max-width: 480px;
+  max-width: 580px;
   margin: 0 auto;
   min-height: 100vh;
   position: relative;
