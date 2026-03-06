@@ -1,504 +1,1066 @@
-import { useState, useEffect, useRef } from "react";
-import { useSelector } from "react-redux";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { toast } from "react-toastify";
-import { io } from "socket.io-client";
-import API from "../../api/axios";
-import TopBar from "../../components/TopBar";
+// import { useState, useEffect, useRef } from "react";
+// import { useNavigate } from "react-router-dom";
+// import { useSelector } from "react-redux";
+// import { useQuery } from "@tanstack/react-query";
+// import { io } from "socket.io-client";
+// import { toast } from "react-toastify";
+// import API from "../../api/axios";
+// import { ArrowLeft, Image as ImageIcon, Send, Loader2, Headset, CheckCircle2, X } from "lucide-react";
 
-const ChatWidget = () => {
-  const { user } = useSelector((state) => state.auth);
-  const [socket, setSocket] = useState(null);
+// export default function ChatWidget() {
+//   const navigate = useNavigate();
+//   const { user, merchant } = useSelector((s) => s.auth);
+
+//   const [messages, setMessages] = useState([]);
+//   const [newMessage, setNewMessage] = useState("");
+//   const [uploading, setUploading] = useState(false);
+//   const [adminTyping, setAdminTyping] = useState(false);
+
+//   const [previewImage, setPreviewImage] = useState(null);
+//   const [previewFile, setPreviewFile] = useState(null);
+
+//   const socketRef = useRef(null);
+//   const messagesEndRef = useRef(null);
+//   const fileInputRef = useRef(null);
+//   const typingTimeoutRef = useRef(null);
+
+//   // 1. Fetch official Room Data from Backend FIRST
+//   const { data: roomData, isLoading: initializingRoom } = useQuery({
+//     queryKey: ["initChatRoom"],
+//     queryFn: async () => {
+//       const { data } = await API.get("/chat/room");
+//       return data;
+//     },
+//     retry: false,
+//   });
+
+//   // CRITICAL FIX: Use the properly formatted roomId from the database (e.g. "room_12345")
+//   const actualRoomId = roomData?.roomId;
+//   const isBlacklisted = roomData?.isBlacklisted;
+
+//   // 2. Fetch History only after we have the real roomId
+//   const { data: historyData, isLoading: loadingHistory } = useQuery({
+//     queryKey: ["chatHistory", actualRoomId],
+//     queryFn: async () => {
+//       const { data } = await API.get(`/chat/messages/${actualRoomId}`);
+//       return data;
+//     },
+//     enabled: !!actualRoomId,
+//   });
+
+//   useEffect(() => {
+//     if (historyData?.messages) {
+//       setMessages(historyData.messages);
+//       scrollToBottom();
+//     }
+//   }, [historyData]);
+
+//   // ── 3. Socket.io Connection ──
+//   useEffect(() => {
+//     if (!actualRoomId || isBlacklisted) return;
+
+//     const socket = io(import.meta.env.VITE_SOCKET_URL || "http://localhost:5000");
+//     socketRef.current = socket;
+
+//     socket.on("connect", () => {
+//       socket.emit("join_room", { roomId: actualRoomId });
+//       socket.emit("user_online", { userId: user._id });
+//     });
+
+//     socket.on("new_message", (msg) => {
+//       // NEW: Toast Notification when Admin replies
+//       if (msg.senderRole !== "merchant") {
+//         toast.info(`Support: ${msg.messageType === 'image' ? '[Image]' : msg.message.substring(0, 30)}`);
+//       }
+
+//       setMessages((prev) => {
+//         if (prev.find((m) => m._id === msg._id)) return prev;
+//         return [...prev, msg];
+//       });
+//       scrollToBottom();
+//     });
+
+//     socket.on("typing_indicator", ({ isTyping, role }) => {
+//       if (role !== "merchant") setAdminTyping(isTyping);
+//     });
+
+//     return () => {
+//       socket.emit("user_offline", { userId: user._id });
+//       socket.disconnect();
+//     };
+//   }, [actualRoomId, user._id, isBlacklisted]);
+
+//   const scrollToBottom = () => {
+//     setTimeout(() => {
+//       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+//     }, 100);
+//   };
+
+//   const handleTyping = (e) => {
+//     setNewMessage(e.target.value);
+//     try {
+//       if (socketRef.current && socketRef.current.connected) {
+//         socketRef.current.emit("typing", { roomId: actualRoomId, isTyping: true, role: "merchant" });
+//         clearTimeout(typingTimeoutRef.current);
+//         typingTimeoutRef.current = setTimeout(() => {
+//           socketRef.current.emit("typing", { roomId: actualRoomId, isTyping: false, role: "merchant" });
+//         }, 2000);
+//       }
+//     } catch (err) {}
+//   };
+
+//   const handleFileSelect = (e) => {
+//     const file = e.target.files[0];
+//     if (!file) return;
+//     const objectUrl = URL.createObjectURL(file);
+//     setPreviewImage(objectUrl);
+//     setPreviewFile(file);
+//     e.target.value = "";
+//   };
+
+//   const cancelImagePreview = () => {
+//     setPreviewImage(null);
+//     setPreviewFile(null);
+//   };
+
+//   // 4. Send Message (Optimistic UI Restored)
+//   const sendMessage = async () => {
+//     if ((!newMessage.trim() && !previewFile) || isBlacklisted || !actualRoomId) return;
+
+//     const msgText = newMessage.trim();
+//     const fileToUpload = previewFile;
+
+//     setNewMessage("");
+//     setPreviewImage(null);
+//     setPreviewFile(null);
+
+//     // Image Handle
+//     if (fileToUpload) {
+//       setUploading(true);
+//       try {
+//         const fd = new FormData();
+//         fd.append("file", fileToUpload);
+//         const { data } = await API.post("/upload/single?folder=chat", fd, { headers: { "Content-Type": "multipart/form-data" } });
+
+//         const imgMsg = {
+//           _id: Date.now().toString(),
+//           roomId: actualRoomId,
+//           message: "",
+//           messageType: "image",
+//           imageUrl: data.url,
+//           senderRole: "merchant",
+//           senderName: merchant?.storeName || user?.username,
+//           senderAvatar: user?.avatar || "",
+//           createdAt: new Date().toISOString(),
+//         };
+
+//         setMessages((prev) => [...prev, imgMsg]);
+//         scrollToBottom();
+
+//         if (socketRef.current && socketRef.current.connected) {
+//           socketRef.current.emit("send_message", imgMsg);
+//         } else {
+//           await API.post("/chat/send", imgMsg);
+//         }
+//       } catch {
+//         toast.error("Failed to upload image");
+//       } finally {
+//         setUploading(false);
+//       }
+//     }
+
+//     // Text Handle
+//     if (msgText) {
+//       const tempTextMsg = {
+//         _id: Date.now().toString(),
+//         roomId: actualRoomId,
+//         message: msgText,
+//         messageType: "text",
+//         senderRole: "merchant",
+//         senderName: merchant?.storeName || user?.username,
+//         senderAvatar: user?.avatar || "",
+//         createdAt: new Date().toISOString(),
+//       };
+
+//       // Instantly render in UI
+//       setMessages((prev) => [...prev, tempTextMsg]);
+//       scrollToBottom();
+
+//       if (socketRef.current && socketRef.current.connected) {
+//         socketRef.current.emit("send_message", tempTextMsg);
+//         socketRef.current.emit("typing", { roomId: actualRoomId, isTyping: false, role: "merchant" });
+//       } else {
+//         await API.post("/chat/send", tempTextMsg);
+//       }
+//     }
+//   };
+
+//   const handleKeyPress = (e) => {
+//     if (e.key === "Enter" && !e.shiftKey) {
+//       e.preventDefault();
+//       sendMessage();
+//     }
+//   };
+
+//   const isLoading = initializingRoom || loadingHistory;
+
+//   return (
+//     <div className="bg-gray-50 flex flex-col relative" style={{ height: "100vh", margin: "0 auto", maxWidth: "620px", overflow: "hidden" }}>
+//       {/* ════════════ STICKY HEADER ════════════ */}
+//       <div style={{ padding: "16px 20px", background: "linear-gradient(135deg, #f02d65 0%, #ff6b35 100%)", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 4px 15px rgba(240, 45, 101, 0.2)", zIndex: 50, flexShrink: 0 }}>
+//         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+//           <button onClick={() => navigate(-1)} style={{ background: "rgba(255,255,255,0.2)", border: "none", width: "36px", height: "36px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", padding: 0 }}>
+//             <ArrowLeft size={20} color="#fff" />
+//           </button>
+//           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+//             <div style={{ width: "40px", height: "40px", borderRadius: "50%", backgroundColor: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}>
+//               <Headset size={20} color="#f02d65" />
+//             </div>
+//             <div>
+//               <h1 style={{ color: "#fff", fontSize: "16px", fontWeight: "bold", margin: "0 0 2px 0" }}>Merchant Support</h1>
+//               <p style={{ color: "rgba(255,255,255,0.9)", fontSize: "11px", margin: 0, display: "flex", alignItems: "center", gap: "4px" }}>
+//                 <span style={{ width: "6px", height: "6px", borderRadius: "50%", backgroundColor: isBlacklisted ? "#ef4444" : "#10b981", display: "inline-block" }}></span>
+//                 {isBlacklisted ? "Unavailable" : "Online"}
+//               </p>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+
+//       {/* ════════════ MESSAGE AREA ════════════ */}
+//       <div className="custom-scrollbar" style={{ flex: 1, overflowY: "auto", padding: "20px 16px", display: "flex", flexDirection: "column", gap: "16px" }}>
+//         <div style={{ textAlign: "center", marginBottom: "8px" }}>
+//           <span style={{ backgroundColor: "#e2e8f0", color: "#64748b", padding: "4px 12px", borderRadius: "12px", fontSize: "10px", fontWeight: "bold" }}>Chat is end-to-end secured</span>
+//         </div>
+
+//         {isLoading ? (
+//           <div style={{ display: "flex", justifyContent: "center", padding: "40px" }}><Loader2 size={24} color="#f02d65" className="animate-spin" /></div>
+//         ) : isBlacklisted ? (
+//           <div style={{ textAlign: "center", padding: "40px 20px", color: "#ef4444", fontWeight: "bold" }}>You have been restricted from contacting support.</div>
+//         ) : messages.length === 0 ? (
+//           <div style={{ textAlign: "center", padding: "40px 20px", opacity: 0.5 }}>
+//             <Headset size={48} color="#94a3b8" style={{ margin: "0 auto 12px auto" }} />
+//             <p style={{ color: "#64748b", fontSize: "14px", fontWeight: "bold", margin: 0 }}>How can we help you today?</p>
+//             <p style={{ color: "#94a3b8", fontSize: "12px", marginTop: "4px" }}>Send a message to connect with an agent.</p>
+//           </div>
+//         ) : (
+//           messages.map((msg, idx) => {
+//             const isMe = msg.senderRole === "merchant";
+//             return (
+//               <div key={msg._id || idx} style={{ display: "flex", flexDirection: "column", alignItems: isMe ? "flex-end" : "flex-start", width: "100%" }}>
+//                 <div style={{ maxWidth: "75%", padding: "12px 16px", fontSize: "14px", lineHeight: "1.5", wordBreak: "break-word", boxShadow: "0 2px 5px rgba(0,0,0,0.05)", background: isMe ? "linear-gradient(135deg, #f02d65 0%, #ff6b35 100%)" : "#fff", color: isMe ? "#fff" : "#1e293b", borderRadius: isMe ? "16px 16px 4px 16px" : "16px 16px 16px 4px", border: isMe ? "none" : "1px solid #f1f5f9" }}>
+//                   {msg.messageType === "image" ? (
+//                     <img src={msg.imageUrl} alt="attachment" style={{ width: "100%", borderRadius: "8px", cursor: "pointer" }} onClick={() => window.open(msg.imageUrl, "_blank")} />
+//                   ) : ( msg.message )}
+//                 </div>
+//                 <div style={{ display: "flex", alignItems: "center", gap: "4px", marginTop: "4px", padding: isMe ? "0 4px 0 0" : "0 0 0 4px" }}>
+//                   <span style={{ fontSize: "10px", color: "#94a3b8", fontWeight: "500" }}>{new Date(msg.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+//                   {isMe && <CheckCircle2 size={12} color="#10b981" />}
+//                 </div>
+//               </div>
+//             );
+//           })
+//         )}
+
+//         {adminTyping && (
+//           <div style={{ display: "flex", alignItems: "flex-start", width: "100%" }}>
+//             <div style={{ backgroundColor: "#fff", padding: "12px 16px", borderRadius: "16px 16px 16px 4px", border: "1px solid #f1f5f9", display: "flex", alignItems: "center", gap: "6px", boxShadow: "0 2px 5px rgba(0,0,0,0.02)" }}>
+//               <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "0ms" }}></div>
+//               <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "150ms" }}></div>
+//               <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "300ms" }}></div>
+//             </div>
+//           </div>
+//         )}
+//         <div ref={messagesEndRef} />
+//       </div>
+
+//       {/* ════════════ INPUT AREA ════════════ */}
+//       <div style={{ backgroundColor: "#fff", borderTop: "1px solid #e2e8f0", zIndex: 50, flexShrink: 0, paddingBottom: "calc(env(safe-area-inset-bottom))" }}>
+
+//         {previewImage && (
+//           <div style={{ padding: "12px 16px", backgroundColor: "#f8fafc", borderBottom: "1px solid #e2e8f0", display: "flex", alignItems: "center", gap: "12px" }}>
+//             <div style={{ position: "relative", width: "60px", height: "60px", borderRadius: "8px", overflow: "hidden", border: "2px solid #f02d65" }}>
+//               <img src={previewImage} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+//               <button onClick={cancelImagePreview} style={{ position: "absolute", top: "2px", right: "2px", width: "20px", height: "20px", borderRadius: "50%", backgroundColor: "rgba(0,0,0,0.6)", color: "#fff", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", padding: 0 }}><X size={12} /></button>
+//             </div>
+//             <p style={{ fontSize: "12px", color: "#64748b", margin: 0, fontWeight: "500" }}>Image attached. Send with a message.</p>
+//           </div>
+//         )}
+
+//         <div style={{ padding: "12px 16px", display: "flex", alignItems: "flex-end", gap: "12px" }}>
+//           <input type="file" ref={fileInputRef} onChange={handleFileSelect} accept="image/*" style={{ display: "none" }} />
+//           <button onClick={() => fileInputRef.current?.click()} disabled={uploading || isBlacklisted} style={{ width: "40px", height: "40px", borderRadius: "50%", backgroundColor: "#f8fafc", border: "1px solid #e2e8f0", display: "flex", alignItems: "center", justifyContent: "center", cursor: isBlacklisted ? "not-allowed" : "pointer", flexShrink: 0, padding: 0 }}>
+//             {uploading ? <Loader2 size={18} color="#f02d65" className="animate-spin" /> : <ImageIcon size={20} color="#64748b" />}
+//           </button>
+//           <textarea value={newMessage} onChange={handleTyping} onKeyDown={handleKeyPress} disabled={isBlacklisted} placeholder={isBlacklisted ? "Chat disabled" : "Type a message..."} rows={1} style={{ flex: 1, backgroundColor: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "20px", padding: "10px 16px", fontSize: "14px", color: "#1e293b", outline: "none", resize: "none", maxHeight: "100px", lineHeight: "1.4" }} />
+//           <button onClick={sendMessage} disabled={(!newMessage.trim() && !previewFile) || uploading || isBlacklisted} style={{ width: "40px", height: "40px", borderRadius: "50%", border: "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, padding: 0, transition: "background 0.3s", background: (newMessage.trim() || previewFile) && !isBlacklisted ? "linear-gradient(135deg, #f02d65 0%, #ff6b35 100%)" : "#e2e8f0", cursor: (newMessage.trim() || previewFile) && !isBlacklisted ? "pointer" : "not-allowed" }}>
+//             <Send size={18} color="#fff" style={{ transform: "translateX(-1px) translateY(1px)" }} />
+//           </button>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+////////////////// ======================= latest version (claud io) ===================== //////////////////////
+////////////////// ======================= latest version (claud io) ===================== //////////////////////
+import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { useQuery } from "@tanstack/react-query";
+import { io } from "socket.io-client";
+import { toast } from "react-toastify";
+import API from "../../api/axios";
+import {
+  ArrowLeft,
+  Image as ImageIcon,
+  Send,
+  Loader2,
+  Headset,
+  CheckCircle2,
+  X,
+  Bell,
+} from "lucide-react";
+
+export default function ChatWidget() {
+  const navigate = useNavigate();
+  const { user, merchant } = useSelector((s) => s.auth);
+
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
-  const [agentTyping, setAgentTyping] = useState(false);
-  const [room, setRoom] = useState(null);
   const [uploading, setUploading] = useState(false);
-  const [activeTab, setActiveTab] = useState("chat");
+  const [adminTyping, setAdminTyping] = useState(false);
+
+  const [previewImage, setPreviewImage] = useState(null);
+  const [previewFile, setPreviewFile] = useState(null);
+
+  // ── NEW: unread notification count ──
+  const [notifCount, setNotifCount] = useState(0);
+
+  const socketRef = useRef(null);
   const messagesEndRef = useRef(null);
+  const fileInputRef = useRef(null);
   const typingTimeoutRef = useRef(null);
 
-  // ── Fetch or create room ──
-  const { data: roomData, isLoading: roomLoading } = useQuery({
-    queryKey: ["myRoom"],
+  // 1. Fetch official Room Data from Backend FIRST
+  const { data: roomData, isLoading: initializingRoom } = useQuery({
+    queryKey: ["initChatRoom"],
     queryFn: async () => {
       const { data } = await API.get("/chat/room");
       return data;
     },
-    onSuccess: (data) => setRoom(data),
-    onError: (error) => {
-      if (error.response?.status === 403) {
-        toast.error("You are blacklisted from chat");
-      }
-    },
+    retry: false,
   });
 
-  // ── Fetch chat history ──
-  const { data: historyData } = useQuery({
-    queryKey: ["chatHistory", roomData?.roomId],
+  const actualRoomId = roomData?.roomId;
+  const isBlacklisted = roomData?.isBlacklisted;
+
+  // 2. Fetch History only after we have the real roomId
+  const { data: historyData, isLoading: loadingHistory } = useQuery({
+    queryKey: ["chatHistory", actualRoomId],
     queryFn: async () => {
-      const { data } = await API.get(`/chat/messages/${roomData?.roomId}`);
+      const { data } = await API.get(`/chat/messages/${actualRoomId}`);
       return data;
     },
-    enabled: !!roomData?.roomId,
-    onSuccess: (data) => setMessages(data.messages || []),
+    enabled: !!actualRoomId,
   });
 
-  // ── Fetch FAQ for tab ──
-  const { data: faqData } = useQuery({
-    queryKey: ["faqForChat"],
-    queryFn: async () => {
-      const { data } = await API.get("/questions");
-      return data;
-    },
-  });
-
-  // ── Setup Socket.io ──
   useEffect(() => {
-    if (!roomData?.roomId) return;
+    if (historyData?.messages) {
+      setMessages(historyData.messages);
+      scrollToBottom();
+    }
+  }, [historyData]);
 
-    const newSocket = io("http://localhost:5000", {
-      transports: ["websocket"],
+  // ── 3. Socket.io Connection ──
+  useEffect(() => {
+    if (!actualRoomId || isBlacklisted) return;
+
+    const socket = io(
+      import.meta.env.VITE_SOCKET_URL || "http://localhost:5000",
+    );
+    socketRef.current = socket;
+
+    socket.on("connect", () => {
+      socket.emit("join_room", { roomId: actualRoomId });
+      socket.emit("user_online", { userId: user._id });
     });
 
-    newSocket.on("connect", () => {
-      // Tell server we are online
-      newSocket.emit("user_online", {
-        userId: user._id,
-        role: "merchant",
+    socket.on("new_message", (msg) => {
+      setMessages((prev) => {
+        if (prev.find((m) => m._id === msg._id)) return prev;
+
+        const isTempMatch = prev.find(
+          (m) =>
+            String(m._id).length === 13 &&
+            m.roomId === msg.roomId &&
+            m.senderRole === msg.senderRole &&
+            m.message === msg.message,
+        );
+        if (isTempMatch) {
+          return prev.map((m) => (m._id === isTempMatch._id ? msg : m));
+        }
+
+        return [...prev, msg];
       });
-      // Join our room
-      newSocket.emit("join_room", { roomId: roomData.roomId });
-      // Mark messages as read
-      newSocket.emit("mark_read", { roomId: roomData.roomId });
+      scrollToBottom();
     });
 
-    // Receive new message
-    newSocket.on("new_message", (message) => {
-      setMessages((prev) => [...prev, message]);
-      // Mark as read immediately since we are in the room
-      newSocket.emit("mark_read", { roomId: roomData.roomId });
-    });
+    socket.on(
+      "new_admin_message",
+      ({ senderName, senderRole, message, messageType }) => {
+        const label =
+          senderRole === "superAdmin"
+            ? "Support"
+            : senderRole === "merchantAdmin"
+              ? "Your Account Manager"
+              : "Support";
+        const preview =
+          messageType === "image" ? "📷 Image" : message?.substring(0, 40);
+        toast.info(`${label}: ${preview}`);
 
-    // Typing indicator
-    newSocket.on("typing_indicator", ({ isTyping }) => {
-      setAgentTyping(isTyping);
-    });
+        // ── NEW: increment notification badge ──
+        setNotifCount((prev) => prev + 1);
+      },
+    );
 
-    // Agent assigned
-    newSocket.on("agent_assigned", ({ agentName }) => {
-      toast.success(`${agentName} joined the chat!`);
+    socket.on("typing_indicator", ({ isTyping, role }) => {
+      if (role !== "merchant") setAdminTyping(isTyping);
     });
-
-    setSocket(newSocket);
 
     return () => {
-      newSocket.disconnect();
+      socket.emit("user_offline", { userId: user._id });
+      socket.disconnect();
+      socketRef.current = null;
     };
-  }, [roomData?.roomId, user._id]);
+  }, [actualRoomId, user._id, isBlacklisted]);
 
-  // ── Auto scroll to bottom ──
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  // ── Send message ──
-  const handleSendMessage = () => {
-    if (!newMessage.trim() || !socket || !roomData?.roomId) return;
-
-    socket.emit("send_message", {
-      roomId: roomData.roomId,
-      message: newMessage.trim(),
-      messageType: "text",
-      senderName: user.username,
-      senderAvatar: user.avatar || "",
-    });
-
-    setNewMessage("");
-    // Stop typing indicator
-    socket.emit("typing", {
-      roomId: roomData.roomId,
-      isTyping: false,
-    });
+  const scrollToBottom = () => {
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
   };
 
-  // ── Typing indicator ──
   const handleTyping = (e) => {
     setNewMessage(e.target.value);
-
-    if (!socket || !roomData?.roomId) return;
-
-    socket.emit("typing", {
-      roomId: roomData.roomId,
-      isTyping: true,
-    });
-
-    // Clear previous timeout
-    clearTimeout(typingTimeoutRef.current);
-
-    // Stop typing after 2 seconds of no input
-    typingTimeoutRef.current = setTimeout(() => {
-      socket.emit("typing", {
-        roomId: roomData.roomId,
-        isTyping: false,
-      });
-    }, 2000);
+    try {
+      if (socketRef.current && socketRef.current.connected) {
+        socketRef.current.emit("typing", {
+          roomId: actualRoomId,
+          isTyping: true,
+          role: "merchant",
+        });
+        clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = setTimeout(() => {
+          socketRef.current?.emit("typing", {
+            roomId: actualRoomId,
+            isTyping: false,
+            role: "merchant",
+          });
+        }, 2000);
+      }
+    } catch (err) {}
   };
 
-  // ── Send image ──
-  const handleImageUpload = async (e) => {
+  const handleFileSelect = (e) => {
     const file = e.target.files[0];
-    if (!file || !socket || !roomData?.roomId) return;
+    if (!file) return;
+    const objectUrl = URL.createObjectURL(file);
+    setPreviewImage(objectUrl);
+    setPreviewFile(file);
+    e.target.value = "";
+  };
 
-    setUploading(true);
-    try {
-      const fd = new FormData();
-      fd.append("file", file);
-      const { data } = await API.post("/upload/single?folder=general", fd, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+  const cancelImagePreview = () => {
+    setPreviewImage(null);
+    setPreviewFile(null);
+  };
 
-      socket.emit("send_message", {
-        roomId: roomData.roomId,
-        message: "",
-        messageType: "image",
-        imageUrl: data.url,
-        senderName: user.username,
-        senderAvatar: user.avatar || "",
-      });
-    } catch {
-      toast.error("Image upload failed");
-    } finally {
-      setUploading(false);
+  // 4. Send Message (Optimistic UI)
+  const sendMessage = async () => {
+    if ((!newMessage.trim() && !previewFile) || isBlacklisted || !actualRoomId)
+      return;
+
+    const msgText = newMessage.trim();
+    const fileToUpload = previewFile;
+
+    setNewMessage("");
+    setPreviewImage(null);
+    setPreviewFile(null);
+
+    // Image Handle
+    if (fileToUpload) {
+      setUploading(true);
+      try {
+        const fd = new FormData();
+        fd.append("file", fileToUpload);
+        const { data } = await API.post("/upload/single?folder=chat", fd, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+
+        const imgMsg = {
+          _id: Date.now().toString(),
+          roomId: actualRoomId,
+          message: "",
+          messageType: "image",
+          imageUrl: data.url,
+          senderRole: "merchant",
+          senderName: merchant?.storeName || user?.username,
+          sender: user?._id,
+          senderId: user?._id,
+          senderAvatar: user?.avatar || "",
+          createdAt: new Date().toISOString(),
+        };
+
+        setMessages((prev) => [...prev, imgMsg]);
+        scrollToBottom();
+
+        if (socketRef.current && socketRef.current.connected) {
+          socketRef.current.emit("send_message", imgMsg);
+        } else {
+          await API.post("/chat/send", imgMsg);
+        }
+      } catch {
+        toast.error("Failed to upload image");
+      } finally {
+        setUploading(false);
+      }
+    }
+
+    // Text Handle
+    if (msgText) {
+      const tempTextMsg = {
+        _id: Date.now().toString(),
+        roomId: actualRoomId,
+        message: msgText,
+        messageType: "text",
+        senderRole: "merchant",
+        senderName: merchant?.storeName || user?.username,
+        sender: user?._id,
+        senderId: user?._id,
+        senderAvatar: user?.avatar || "",
+        createdAt: new Date().toISOString(),
+      };
+
+      setMessages((prev) => [...prev, tempTextMsg]);
+      scrollToBottom();
+
+      if (socketRef.current && socketRef.current.connected) {
+        socketRef.current.emit("send_message", tempTextMsg);
+        socketRef.current.emit("typing", {
+          roomId: actualRoomId,
+          isTyping: false,
+          role: "merchant",
+        });
+      } else {
+        await API.post("/chat/send", tempTextMsg);
+      }
     }
   };
 
-  // ── Handle Enter key ──
   const handleKeyPress = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleSendMessage();
+      sendMessage();
     }
   };
 
-  if (roomLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <TopBar title="Customer Service" />
-        <div className="flex items-center justify-center h-80">
-          <svg
-            className="animate-spin h-8 w-8"
-            style={{ color: "#f02d65" }}
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8v8H4z"
-            />
-          </svg>
-        </div>
-      </div>
-    );
-  }
+  const isLoading = initializingRoom || loadingHistory;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <TopBar
-        title="Customer Service"
-        rightElement={
-          <div className="flex items-center gap-1">
+    <div
+      className="bg-gray-50 flex flex-col relative"
+      style={{
+        height: "100vh",
+        margin: "0 auto",
+        maxWidth: "620px",
+        overflow: "hidden",
+      }}
+    >
+      {/* ════════════ STICKY HEADER ════════════ */}
+      <div
+        style={{
+          padding: "16px 20px",
+          background: "linear-gradient(135deg, #f02d65 0%, #ff6b35 100%)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          boxShadow: "0 4px 15px rgba(240, 45, 101, 0.2)",
+          zIndex: 50,
+          flexShrink: 0,
+        }}
+      >
+        {/* Left side — unchanged */}
+        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          <button
+            onClick={() => navigate(-1)}
+            style={{
+              background: "rgba(255,255,255,0.2)",
+              border: "none",
+              width: "36px",
+              height: "36px",
+              borderRadius: "50%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              padding: 0,
+            }}
+          >
+            <ArrowLeft size={20} color="#fff" />
+          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <div
-              className={`w-2 h-2 rounded-full ${
-                roomData?.status === "active" ? "bg-green-400" : "bg-gray-300"
-              }`}
-            />
-            <span className="text-xs text-gray-400">
-              {roomData?.status === "active" ? "Online" : "Waiting"}
-            </span>
-          </div>
-        }
-      />
-
-      {/* ── TABS ── */}
-      <div className="bg-white border-b border-gray-100">
-        <div className="flex">
-          {[
-            { key: "chat", label: "💬 Chat" },
-            { key: "faq", label: "❓ FAQ" },
-          ].map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className="flex-1 py-3 text-sm font-medium
-                transition-all relative"
               style={{
-                color: activeTab === tab.key ? "#f02d65" : "#9ca3af",
+                width: "40px",
+                height: "40px",
+                borderRadius: "50%",
+                backgroundColor: "#fff",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
-              {tab.label}
-              {activeTab === tab.key && (
-                <div
-                  className="absolute bottom-0 left-1/2
-                  -translate-x-1/2 w-8 h-0.5 rounded-full"
-                  style={{ background: "#f02d65" }}
-                />
-              )}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {activeTab === "chat" ? (
-        <>
-          {/* ── SERVICE HOURS ── */}
-          <div
-            className="mx-4 mt-3 p-3 bg-blue-50 rounded-xl
-            border border-blue-100 flex items-center gap-2"
-          >
-            <span className="text-blue-400">🕐</span>
-            <p className="text-blue-600 text-xs">
-              Service hours: 09:00 - 22:00 (Mon-Sun)
-            </p>
-          </div>
-
-          {/* ── MESSAGES ── */}
-          <div
-            className="flex-1 overflow-y-auto p-4 pb-2 space-y-3"
-            style={{ maxHeight: "calc(100vh - 280px)" }}
-          >
-            {/* Welcome message */}
-            {messages.length === 0 && (
-              <div className="text-center py-8">
-                <div
-                  className="w-16 h-16 rounded-full mx-auto
-                  flex items-center justify-center text-3xl mb-3"
+              <Headset size={20} color="#f02d65" />
+            </div>
+            <div>
+              <h1
+                style={{
+                  color: "#fff",
+                  fontSize: "16px",
+                  fontWeight: "bold",
+                  margin: "0 0 2px 0",
+                }}
+              >
+                Merchant Support
+              </h1>
+              <p
+                style={{
+                  color: "rgba(255,255,255,0.9)",
+                  fontSize: "11px",
+                  margin: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "4px",
+                }}
+              >
+                <span
                   style={{
-                    background: "linear-gradient(135deg, #f02d65, #ff6b35)",
+                    width: "6px",
+                    height: "6px",
+                    borderRadius: "50%",
+                    backgroundColor: isBlacklisted ? "#ef4444" : "#10b981",
+                    display: "inline-block",
                   }}
-                >
-                  🎧
-                </div>
-                <p className="text-gray-600 font-bold text-sm">
-                  TikTok Shop Support
-                </p>
-                <p className="text-gray-400 text-xs mt-1">
-                  Hello! How can we help you today?
-                </p>
-                {roomData?.status === "waiting" && (
-                  <div
-                    className="mt-3 px-4 py-2 bg-yellow-50
-                    rounded-xl inline-block"
-                  >
-                    <p className="text-yellow-600 text-xs">
-                      ⏳ Waiting for an agent...
-                    </p>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {messages.map((msg, i) => {
-              const isMe =
-                msg.sender === user._id || msg.senderRole === "merchant";
-
-              return (
-                <div
-                  key={msg._id || i}
-                  className={`flex items-end gap-2 ${
-                    isMe ? "flex-row-reverse" : "flex-row"
-                  }`}
-                >
-                  {/* Avatar */}
-                  {!isMe && (
-                    <div
-                      className="w-8 h-8 rounded-full flex-shrink-0
-                      flex items-center justify-center text-white text-sm"
-                      style={{
-                        background: "linear-gradient(135deg, #f02d65, #ff6b35)",
-                      }}
-                    >
-                      🎧
-                    </div>
-                  )}
-
-                  {/* Bubble */}
-                  <div
-                    className={`max-w-[70%] ${
-                      isMe ? "items-end" : "items-start"
-                    } flex flex-col gap-1`}
-                  >
-                    {/* Sender name for agent */}
-                    {!isMe && (
-                      <p className="text-gray-400 text-[10px] px-1">
-                        {msg.senderName || "Support"}
-                      </p>
-                    )}
-
-                    {msg.messageType === "image" ? (
-                      <img
-                        src={msg.imageUrl}
-                        alt="sent image"
-                        className="max-w-full rounded-2xl shadow-sm
-                          max-h-48 object-cover"
-                      />
-                    ) : (
-                      <div
-                        className={`px-4 py-2.5 rounded-2xl
-                        text-sm leading-relaxed ${
-                          isMe
-                            ? "text-white rounded-br-sm"
-                            : "bg-white text-gray-700 shadow-sm rounded-bl-sm"
-                        }`}
-                        style={{
-                          background: isMe
-                            ? "linear-gradient(135deg, #f02d65, #ff6b35)"
-                            : undefined,
-                        }}
-                      >
-                        {msg.message}
-                      </div>
-                    )}
-
-                    {/* Timestamp */}
-                    <p className="text-gray-300 text-[10px] px-1">
-                      {new Date(msg.createdAt).toLocaleTimeString("en-US", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
-
-            {/* Agent typing indicator */}
-            {agentTyping && (
-              <div className="flex items-end gap-2">
-                <div
-                  className="w-8 h-8 rounded-full flex-shrink-0
-                  flex items-center justify-center text-white text-sm"
-                  style={{
-                    background: "linear-gradient(135deg, #f02d65, #ff6b35)",
-                  }}
-                >
-                  🎧
-                </div>
-                <div
-                  className="bg-white px-4 py-3 rounded-2xl
-                  rounded-bl-sm shadow-sm flex gap-1"
-                >
-                  {[0, 1, 2].map((i) => (
-                    <div
-                      key={i}
-                      className="w-2 h-2 bg-gray-400 rounded-full
-                        animate-bounce"
-                      style={{ animationDelay: `${i * 0.15}s` }}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div ref={messagesEndRef} />
-          </div>
-
-          {/* ── INPUT BAR ── */}
-          <div
-            className="bg-white border-t border-gray-100 p-3
-            flex items-center gap-2"
-          >
-            {/* Image upload */}
-            <label
-              className="w-10 h-10 rounded-xl bg-gray-100
-              flex items-center justify-center cursor-pointer
-              active:bg-gray-200 flex-shrink-0"
-            >
-              {uploading ? (
-                <svg
-                  className="animate-spin h-4 w-4 text-gray-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8v8H4z"
-                  />
-                </svg>
-              ) : (
-                <span className="text-xl">📷</span>
-              )}
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                className="hidden"
-              />
-            </label>
-
-            {/* Text input */}
-            <input
-              type="text"
-              value={newMessage}
-              onChange={handleTyping}
-              onKeyPress={handleKeyPress}
-              placeholder="Type a message..."
-              className="flex-1 px-4 py-2.5 bg-gray-100 rounded-xl
-                text-sm outline-none focus:bg-gray-50 transition-all"
-            />
-
-            {/* Send button */}
-            <button
-              onClick={handleSendMessage}
-              disabled={!newMessage.trim()}
-              className="w-10 h-10 rounded-xl flex items-center
-                justify-center text-white flex-shrink-0
-                transition-all active:scale-90 disabled:opacity-40"
-              style={{
-                background: "linear-gradient(135deg, #f02d65, #ff6b35)",
-              }}
-            >
-              ➤
-            </button>
-          </div>
-        </>
-      ) : (
-        // ── FAQ TAB ──
-        <div className="flex-1 overflow-y-auto p-4 space-y-2">
-          <p className="text-gray-400 text-xs font-medium mb-3">QUICK HELP</p>
-          {faqData?.map((q) => (
-            <div key={q._id} className="bg-white rounded-2xl p-4 shadow-sm">
-              <p className="text-gray-700 text-sm font-bold mb-2">
-                {q.question}
-              </p>
-              <p className="text-gray-500 text-xs leading-relaxed">
-                {q.answer}
+                ></span>
+                {isBlacklisted ? "Unavailable" : "Online"}
               </p>
             </div>
-          ))}
+          </div>
         </div>
-      )}
+
+        {/* ── NEW: Notification Bell — clicking clears the count ── */}
+        <button
+          onClick={() => setNotifCount(0)}
+          style={{
+            position: "relative",
+            background: "rgba(255,255,255,0.2)",
+            border: "none",
+            width: "36px",
+            height: "36px",
+            borderRadius: "50%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            padding: 0,
+            flexShrink: 0,
+          }}
+        >
+          <Bell size={18} color="#fff" />
+          {notifCount > 0 && (
+            <span
+              style={{
+                position: "absolute",
+                top: "-2px",
+                right: "-2px",
+                backgroundColor: "#facc15",
+                color: "#1e293b",
+                borderRadius: "50%",
+                width: "18px",
+                height: "18px",
+                fontSize: "10px",
+                fontWeight: "bold",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                lineHeight: 1,
+                pointerEvents: "none",
+              }}
+            >
+              {notifCount > 9 ? "9+" : notifCount}
+            </span>
+          )}
+        </button>
+      </div>
+
+      {/* ════════════ MESSAGE AREA ════════════ */}
+      <div
+        className="custom-scrollbar"
+        style={{
+          flex: 1,
+          overflowY: "auto",
+          padding: "20px 16px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "16px",
+        }}
+      >
+        <div style={{ textAlign: "center", marginBottom: "8px" }}>
+          <span
+            style={{
+              backgroundColor: "#e2e8f0",
+              color: "#64748b",
+              padding: "4px 12px",
+              borderRadius: "12px",
+              fontSize: "10px",
+              fontWeight: "bold",
+            }}
+          >
+            Chat is end-to-end secured
+          </span>
+        </div>
+
+        {isLoading ? (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              padding: "40px",
+            }}
+          >
+            <Loader2 size={24} color="#f02d65" className="animate-spin" />
+          </div>
+        ) : isBlacklisted ? (
+          <div
+            style={{
+              textAlign: "center",
+              padding: "40px 20px",
+              color: "#ef4444",
+              fontWeight: "bold",
+            }}
+          >
+            You have been restricted from contacting support.
+          </div>
+        ) : messages.length === 0 ? (
+          <div
+            style={{
+              textAlign: "center",
+              padding: "40px 20px",
+              opacity: 0.5,
+            }}
+          >
+            <Headset
+              size={48}
+              color="#94a3b8"
+              style={{ margin: "0 auto 12px auto" }}
+            />
+            <p
+              style={{
+                color: "#64748b",
+                fontSize: "14px",
+                fontWeight: "bold",
+                margin: 0,
+              }}
+            >
+              How can we help you today?
+            </p>
+            <p
+              style={{
+                color: "#94a3b8",
+                fontSize: "12px",
+                marginTop: "4px",
+              }}
+            >
+              Send a message to connect with an agent.
+            </p>
+          </div>
+        ) : (
+          messages.map((msg, idx) => {
+            const isMe = msg.senderRole === "merchant";
+            return (
+              <div
+                key={msg._id || idx}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: isMe ? "flex-end" : "flex-start",
+                  width: "100%",
+                }}
+              >
+                <div
+                  style={{
+                    maxWidth: "75%",
+                    padding: "12px 16px",
+                    fontSize: "14px",
+                    lineHeight: "1.5",
+                    wordBreak: "break-word",
+                    boxShadow: "0 2px 5px rgba(0,0,0,0.05)",
+                    background: isMe
+                      ? "linear-gradient(135deg, #f02d65 0%, #ff6b35 100%)"
+                      : "#fff",
+                    color: isMe ? "#fff" : "#1e293b",
+                    borderRadius: isMe
+                      ? "16px 16px 4px 16px"
+                      : "16px 16px 16px 4px",
+                    border: isMe ? "none" : "1px solid #f1f5f9",
+                  }}
+                >
+                  {msg.messageType === "image" ? (
+                    <img
+                      src={msg.imageUrl}
+                      alt="attachment"
+                      style={{
+                        width: "100%",
+                        borderRadius: "8px",
+                        cursor: "pointer",
+                      }}
+                      onClick={() => window.open(msg.imageUrl, "_blank")}
+                    />
+                  ) : (
+                    msg.message
+                  )}
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "4px",
+                    marginTop: "4px",
+                    padding: isMe ? "0 4px 0 0" : "0 0 0 4px",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: "10px",
+                      color: "#94a3b8",
+                      fontWeight: "500",
+                    }}
+                  >
+                    {new Date(msg.createdAt).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                  {isMe && <CheckCircle2 size={12} color="#10b981" />}
+                </div>
+              </div>
+            );
+          })
+        )}
+
+        {adminTyping && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              width: "100%",
+            }}
+          >
+            <div
+              style={{
+                backgroundColor: "#fff",
+                padding: "12px 16px",
+                borderRadius: "16px 16px 16px 4px",
+                border: "1px solid #f1f5f9",
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+                boxShadow: "0 2px 5px rgba(0,0,0,0.02)",
+              }}
+            >
+              <div
+                className="w-2 h-2 rounded-full bg-gray-400 animate-bounce"
+                style={{ animationDelay: "0ms" }}
+              ></div>
+              <div
+                className="w-2 h-2 rounded-full bg-gray-400 animate-bounce"
+                style={{ animationDelay: "150ms" }}
+              ></div>
+              <div
+                className="w-2 h-2 rounded-full bg-gray-400 animate-bounce"
+                style={{ animationDelay: "300ms" }}
+              ></div>
+            </div>
+          </div>
+        )}
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* ════════════ INPUT AREA ════════════ */}
+      <div
+        style={{
+          backgroundColor: "#fff",
+          borderTop: "1px solid #e2e8f0",
+          zIndex: 50,
+          flexShrink: 0,
+          paddingBottom: "calc(env(safe-area-inset-bottom))",
+        }}
+      >
+        {previewImage && (
+          <div
+            style={{
+              padding: "12px 16px",
+              backgroundColor: "#f8fafc",
+              borderBottom: "1px solid #e2e8f0",
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+            }}
+          >
+            <div
+              style={{
+                position: "relative",
+                width: "60px",
+                height: "60px",
+                borderRadius: "8px",
+                overflow: "hidden",
+                border: "2px solid #f02d65",
+              }}
+            >
+              <img
+                src={previewImage}
+                alt="Preview"
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+              <button
+                onClick={cancelImagePreview}
+                style={{
+                  position: "absolute",
+                  top: "2px",
+                  right: "2px",
+                  width: "20px",
+                  height: "20px",
+                  borderRadius: "50%",
+                  backgroundColor: "rgba(0,0,0,0.6)",
+                  color: "#fff",
+                  border: "none",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  padding: 0,
+                }}
+              >
+                <X size={12} />
+              </button>
+            </div>
+            <p
+              style={{
+                fontSize: "12px",
+                color: "#64748b",
+                margin: 0,
+                fontWeight: "500",
+              }}
+            >
+              Image attached. Send with a message.
+            </p>
+          </div>
+        )}
+
+        <div
+          style={{
+            padding: "12px 16px",
+            display: "flex",
+            alignItems: "flex-end",
+            gap: "12px",
+          }}
+        >
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileSelect}
+            accept="image/*"
+            style={{ display: "none" }}
+          />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading || isBlacklisted}
+            style={{
+              width: "40px",
+              height: "40px",
+              borderRadius: "50%",
+              backgroundColor: "#f8fafc",
+              border: "1px solid #e2e8f0",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: isBlacklisted ? "not-allowed" : "pointer",
+              flexShrink: 0,
+              padding: 0,
+            }}
+          >
+            {uploading ? (
+              <Loader2 size={18} color="#f02d65" className="animate-spin" />
+            ) : (
+              <ImageIcon size={20} color="#64748b" />
+            )}
+          </button>
+          <textarea
+            value={newMessage}
+            onChange={handleTyping}
+            onKeyDown={handleKeyPress}
+            disabled={isBlacklisted}
+            placeholder={isBlacklisted ? "Chat disabled" : "Type a message..."}
+            rows={1}
+            style={{
+              flex: 1,
+              backgroundColor: "#f8fafc",
+              border: "1px solid #e2e8f0",
+              borderRadius: "20px",
+              padding: "10px 16px",
+              fontSize: "14px",
+              color: "#1e293b",
+              outline: "none",
+              resize: "none",
+              maxHeight: "100px",
+              lineHeight: "1.4",
+            }}
+          />
+          <button
+            onClick={sendMessage}
+            disabled={
+              (!newMessage.trim() && !previewFile) || uploading || isBlacklisted
+            }
+            style={{
+              width: "40px",
+              height: "40px",
+              borderRadius: "50%",
+              border: "none",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+              padding: 0,
+              transition: "background 0.3s",
+              background:
+                (newMessage.trim() || previewFile) && !isBlacklisted
+                  ? "linear-gradient(135deg, #f02d65 0%, #ff6b35 100%)"
+                  : "#e2e8f0",
+              cursor:
+                (newMessage.trim() || previewFile) && !isBlacklisted
+                  ? "pointer"
+                  : "not-allowed",
+            }}
+          >
+            <Send
+              size={18}
+              color="#fff"
+              style={{ transform: "translateX(-1px) translateY(1px)" }}
+            />
+          </button>
+        </div>
+      </div>
     </div>
   );
-};
-
-export default ChatWidget;
+}

@@ -1,163 +1,204 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import API from "../../api/axios";
 import TopBar from "../../components/TopBar";
+import {
+  HelpCircle,
+  ChevronRight,
+  Search,
+  Loader2,
+  BookOpen,
+} from "lucide-react";
 
-const Questions = () => {
-  const [openId, setOpenId] = useState(null);
-  const [showContract, setShowContract] = useState(false);
+export default function Questions() {
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
 
   const { data: questions, isLoading } = useQuery({
-    queryKey: ["faqQuestions"],
+    queryKey: ["faqs"],
     queryFn: async () => {
       const { data } = await API.get("/questions");
       return data;
     },
   });
 
-  const { data: contract } = useQuery({
-    queryKey: ["contract"],
-    queryFn: async () => {
-      const { data } = await API.get("/questions/contract");
-      return data;
-    },
-  });
+  // const filtered = (questions || []).filter(
+  //   (q) =>
+  //     q.question?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  //     q.category?.toLowerCase().includes(searchQuery.toLowerCase()),
+  // );
 
-  const categoryIcons = {
-    "Account Status": "👤",
-    "Product Management": "📦",
-    "Advertising Regulations": "📢",
-    "Transportation Rules": "🚚",
-    "Capital Safety": "💰",
-    "Complaints & Disputes": "🚨",
-    "Store Management": "🏪",
-  };
+  const filtered = (questions || []).filter(
+    (q) =>
+      q.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      q.category?.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-8">
-      <TopBar title="Help & FAQ" />
+    <div
+      className="min-h-screen bg-gray-50 flex flex-col relative"
+      style={{ margin: "0 auto", maxWidth: "620px" }}
+    >
+      {/* ── Sticky Top Bar & Header ── */}
+      <div style={{ position: "sticky", top: 0, zIndex: 40 }}>
+        <TopBar
+          title="Help Center"
+          backgroundColor="#1e293b"
+          textColor="text-white"
+          showBack={true}
+        />
 
-      {/* Contract Banner */}
-      <button
-        onClick={() => setShowContract(true)}
-        className="mx-4 mt-4 w-[calc(100%-32px)] rounded-2xl p-4
-          flex items-center gap-3 shadow-sm text-left"
-        style={{
-          background: "linear-gradient(135deg, #667eea, #764ba2)",
-        }}
-      >
-        <span className="text-3xl">📜</span>
-        <div className="flex-1">
-          <p className="text-white font-bold text-sm">Cooperation Agreement</p>
-          <p className="text-white/70 text-xs">TikTok Shop platform terms</p>
-        </div>
-        <span className="text-white/70">›</span>
-      </button>
-
-      {/* FAQ List */}
-      <div className="mx-4 mt-4 space-y-2">
-        <p className="text-gray-400 text-xs font-medium mb-3">
-          FREQUENTLY ASKED QUESTIONS
-        </p>
-
-        {isLoading
-          ? [...Array(5)].map((_, i) => (
-              <div
-                key={i}
-                className="bg-white rounded-2xl h-14 animate-pulse"
-              />
-            ))
-          : questions?.map((q) => (
-              <div
-                key={q._id}
-                className="bg-white rounded-2xl shadow-sm overflow-hidden"
-              >
-                {/* Question Header */}
-                <button
-                  onClick={() => setOpenId(openId === q._id ? null : q._id)}
-                  className="w-full flex items-center gap-3 p-4 text-left"
-                >
-                  <span className="text-xl flex-shrink-0">
-                    {categoryIcons[q.category] || "❓"}
-                  </span>
-                  <p className="flex-1 text-gray-700 text-sm font-medium">
-                    {q.question}
-                  </p>
-                  <span
-                    className="text-gray-300 transition-transform
-                    flex-shrink-0"
-                    style={{
-                      transform: openId === q._id ? "rotate(90deg)" : "none",
-                    }}
-                  >
-                    ›
-                  </span>
-                </button>
-
-                {/* Answer */}
-                {openId === q._id && (
-                  <div className="px-4 pb-4 pt-0">
-                    <div className="bg-gray-50 rounded-xl p-3">
-                      <p className="text-gray-500 text-sm leading-relaxed">
-                        {q.answer}
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
-      </div>
-
-      {/* Contract Modal */}
-      {showContract && (
         <div
-          className="fixed inset-0 bg-black/50 z-50 flex
-          items-end justify-center"
+          style={{
+            background: "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)",
+            padding: "16px 20px 24px 20px",
+            borderBottomLeftRadius: "24px",
+            borderBottomRightRadius: "24px",
+          }}
         >
-          <div
-            className="bg-white w-full max-w-[480px] rounded-t-3xl
-            max-h-[80vh] flex flex-col"
-          >
-            {/* Header */}
-            <div
-              className="flex items-center justify-between p-5
-              border-b border-gray-100"
-            >
-              <h3 className="font-bold text-gray-800">Cooperation Agreement</h3>
-              <button
-                onClick={() => setShowContract(false)}
-                className="w-8 h-8 bg-gray-100 rounded-full flex
-                  items-center justify-center text-gray-500"
-              >
-                ×
-              </button>
-            </div>
-            {/* Content */}
-            <div className="flex-1 overflow-y-auto p-5">
-              <p
-                className="text-gray-600 text-sm leading-relaxed
-                whitespace-pre-line"
-              >
-                {contract?.content}
-              </p>
-            </div>
-            {/* Footer */}
-            <div className="p-4 border-t border-gray-100">
-              <button
-                onClick={() => setShowContract(false)}
-                className="w-full py-3 rounded-xl text-white font-bold"
-                style={{
-                  background: "linear-gradient(135deg, #f02d65, #ff6b35)",
-                }}
-              >
-                I Understand
-              </button>
-            </div>
+          <div style={{ position: "relative" }}>
+            <Search
+              size={18}
+              color="#94a3b8"
+              style={{
+                position: "absolute",
+                left: "16px",
+                top: "50%",
+                transform: "translateY(-50%)",
+              }}
+            />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search guides and FAQs..."
+              style={{
+                width: "100%",
+                padding: "14px 16px 14px 44px",
+                backgroundColor: "rgba(255,255,255,0.1)",
+                border: "1px solid rgba(255,255,255,0.2)",
+                borderRadius: "12px",
+                fontSize: "14px",
+                color: "#fff",
+                outline: "none",
+              }}
+            />
           </div>
         </div>
-      )}
+      </div>
+
+      {/* ── FAQ List ── */}
+      <div
+        style={{
+          padding: "16px",
+          marginTop: "-16px",
+          position: "relative",
+          zIndex: 10,
+        }}
+      >
+        <div
+          style={{
+            backgroundColor: "#fff",
+            borderRadius: "16px",
+            padding: "16px",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.04)",
+          }}
+        >
+          <p
+            style={{
+              color: "#1e293b",
+              fontSize: "15px",
+              fontWeight: "bold",
+              margin: "0 0 16px 0",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+            }}
+          >
+            <BookOpen size={18} color="#f02d65" /> Platform Guidelines
+          </p>
+
+          {isLoading ? (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                padding: "40px 0",
+              }}
+            >
+              <Loader2 size={24} className="animate-spin text-rose-500" />
+            </div>
+          ) : filtered.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "40px 0" }}>
+              <HelpCircle
+                size={40}
+                color="#cbd5e1"
+                style={{ margin: "0 auto 12px auto" }}
+              />
+              <p style={{ color: "#64748b", fontSize: "14px", margin: 0 }}>
+                No matching questions found.
+              </p>
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              {filtered.map((item, idx) => (
+                <button
+                  key={item._id}
+                  onClick={() => navigate(`/faq/${item._id}`)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "16px 0",
+                    background: "none",
+                    border: "none",
+                    borderBottom:
+                      idx !== filtered.length - 1
+                        ? "1px solid #f1f5f9"
+                        : "none",
+                    cursor: "pointer",
+                    textAlign: "left",
+                  }}
+                >
+                  <div style={{ flex: 1, paddingRight: "16px" }}>
+                    {item.category && (
+                      <span
+                        style={{
+                          color: "#f02d65",
+                          fontSize: "10px",
+                          fontWeight: "bold",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.5px",
+                          margin: "0 0 4px 0",
+                          display: "block",
+                        }}
+                      >
+                        {item.category}
+                      </span>
+                    )}
+                    <span
+                      style={{
+                        color: "#1e293b",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                        lineHeight: "1.4",
+                      }}
+                    >
+                      {item.title}
+                    </span>
+                  </div>
+                  <ChevronRight
+                    size={18}
+                    color="#cbd5e1"
+                    style={{ flexShrink: 0 }}
+                  />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
-};
-
-export default Questions;
+}

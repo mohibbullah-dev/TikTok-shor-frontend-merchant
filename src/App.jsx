@@ -33,34 +33,7 @@ import ChatWidget from "./pages/chat/ChatWidget";
 import Messages from "./pages/notices/Messages";
 import Complaint from "./pages/complaints/Complaint";
 import Questions from "./pages/faq/Questions";
-// import Home from "./pages/home/Home";
-// import Orders from "./pages/orders/Orders";
-// import OrderDetail from "./pages/orders/OrderDetail";
-// import Products from "./pages/products/Products";
-// import ProductDetail from "./pages/products/ProductDetail";
-// import Distribution from "./pages/products/Distribution";
-// import Profile from "./pages/profile/Profile";
-// import PersonalInfo from "./pages/profile/PersonalInfo";
-// import Settings from "./pages/profile/Settings";
-// import BaseInfo from "./pages/profile/BaseInfo";
-// import BannerUpload from "./pages/profile/BannerUpload";
-// import Language from "./pages/profile/Language";
-
-// // Wallet pages
-// import Recharge from "./pages/wallet/Recharge";
-// import WalletRecharge from "./pages/wallet/WalletRecharge";
-// import Withdraw from "./pages/wallet/Withdraw";
-// import FundsRecords from "./pages/wallet/FundsRecords";
-// import Finance from "./pages/wallet/Finance";
-
-// // Other pages
-// import VipUpgrade from "./pages/vip/VipUpgrade";
-// import Calendar from "./pages/attendance/Calendar";
-// import ChatWidget from "./pages/chat/ChatWidget";
-// import Messages from "./pages/notices/Messages";
-// import Complaint from "./pages/complaints/Complaint";
-// import Questions from "./pages/faq/Questions";
-
+import QuestionDetail from "./pages/faq/QuestionDetail";
 // Protected route component
 const ProtectedRoute = ({ children }) => {
   const { token, user } = useSelector((state) => state.auth);
@@ -267,6 +240,15 @@ const App = () => {
         element={
           <ProtectedRoute>
             <Questions />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/faq/:id"
+        element={
+          <ProtectedRoute>
+            <QuestionDetail />
           </ProtectedRoute>
         }
       />

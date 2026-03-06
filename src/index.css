@@ -11,20 +11,21 @@
   --color-dark: #1a1a2e;
   --color-gray-soft: #f8f9fa;
 
-  --font-family-sans: "Inter", system-ui, sans-serif;
+  --font-family-sans: "Inter", system-ui, sans-serif, Roboto;
 }
 
 /* Global styles */
 * {
-  margin: 0;
-  padding: 0;
+  margin: 0px;
+  margin-top: 2px;
+  padding: 2px;
   box-sizing: border-box;
 }
 
 body {
   font-family: var(--font-family-sans);
   background-color: #f8f9fa;
-  max-width: 580px;
+  max-width: 720px;
   margin: 0 auto;
   min-height: 100vh;
   position: relative;
