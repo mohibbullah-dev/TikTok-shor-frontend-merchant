@@ -159,7 +159,7 @@ const Messages = () => {
           items-end justify-center"
         >
           <div
-            className="bg-white w-full max-w-[480px] rounded-t-3xl
+            className="bg-white w-full max-w-[620px] rounded-t-3xl
             max-h-[80vh] flex flex-col"
           >
             <div

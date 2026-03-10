@@ -284,14 +284,6 @@
 
 // export default Calendar
 
-
-
-
-
-
-
-
-
 ///////////////////// =========================== latest version (by gemeni) ===================== /////////////////////
 
 import { useState, useEffect } from "react";
@@ -309,12 +301,12 @@ export default function Calendar() {
 
   // Fetch Attendance Records
   const { data: attendanceData, isLoading } = useQuery({
-    queryKey: ["attendance"],
+    queryKey: ["attendanceCalendar"],
     queryFn: async () => {
       // Create this route in backend if not exists: GET /api/merchants/attendance
       // Returning mock structure for UI safety if endpoint is missing
       try {
-        const { data } = await API.get("/merchants/attendance");
+        const { data } = await API.get("/attendance/calendar");
         return data;
       } catch {
         return { records: [], totalDays: 0, checkedInToday: false };
@@ -324,20 +316,22 @@ export default function Calendar() {
 
   useEffect(() => {
     if (attendanceData) {
-      setIsCheckedInToday(attendanceData.checkedInToday);
+      // setIsCheckedInToday(attendanceData.checkedInToday);
+      setIsCheckedInToday(attendanceData.signedToday);
     }
   }, [attendanceData]);
 
   const checkInMutation = useMutation({
     mutationFn: async () => {
       // Create this route in backend: POST /api/merchants/attendance/check-in
-      const { data } = await API.post("/merchants/attendance/check-in");
+      const { data } = await API.post("/attendance/sign-in");
       return data;
     },
     onSuccess: () => {
       toast.success("Checked in successfully! +1 Credit Score");
       setIsCheckedInToday(true);
-      queryClient.invalidateQueries(["attendance"]);
+      // queryClient.invalidateQueries(["attendance"]);
+      queryClient.invalidateQueries(["attendanceCalendar"]);
       queryClient.invalidateQueries(["myStore"]);
     },
     onError: (err) => {
@@ -348,25 +342,86 @@ export default function Calendar() {
 
   const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   // Mocking the current week's visual state based on totalDays
-  const totalDays = attendanceData?.totalDays || 0;
+  // const totalDays = attendanceData?.totalDays || 0;
+  const totalDays = attendanceData?.consecutiveSignIns || 0;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col relative" style={{ margin: "0 auto", maxWidth: "620px" }}>
-      <TopBar title="Daily Attendance" backgroundColor="#fff" textColor="text-gray-800" showBack={true} />
+    <div
+      className="min-h-screen bg-gray-50 flex flex-col relative"
+      style={{ margin: "0 auto", maxWidth: "620px" }}
+    >
+      <TopBar
+        title="Daily Attendance"
+        backgroundColor="#fff"
+        textColor="text-gray-800"
+        showBack={true}
+      />
 
       {/* ════════════ HERO FLAME SECTION ════════════ */}
-      <div style={{ padding: "24px 20px", display: "flex", flexDirection: "column", alignItems: "center", background: "linear-gradient(180deg, #fff 0%, #f8fafc 100%)", borderBottom: "1px solid #f1f5f9" }}>
-        
-        <div style={{ width: "80px", height: "80px", borderRadius: "50%", background: "linear-gradient(135deg, #f02d65 0%, #ff6b35 100%)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "16px", boxShadow: "0 8px 20px rgba(240, 45, 101, 0.3)", position: "relative" }}>
+      <div
+        style={{
+          padding: "24px 20px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          background: "linear-gradient(180deg, #fff 0%, #f8fafc 100%)",
+          borderBottom: "1px solid #f1f5f9",
+        }}
+      >
+        <div
+          style={{
+            width: "80px",
+            height: "80px",
+            borderRadius: "50%",
+            background: "linear-gradient(135deg, #f02d65 0%, #ff6b35 100%)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            marginBottom: "16px",
+            boxShadow: "0 8px 20px rgba(240, 45, 101, 0.3)",
+            position: "relative",
+          }}
+        >
           <Flame size={40} color="#fff" fill="#fff" />
-          <div style={{ position: "absolute", top: "-5px", right: "-5px", backgroundColor: "#1e293b", color: "#fff", fontSize: "10px", fontWeight: "bold", padding: "4px 8px", borderRadius: "10px", border: "2px solid #fff" }}>
+          <div
+            style={{
+              position: "absolute",
+              top: "-5px",
+              right: "-5px",
+              backgroundColor: "#1e293b",
+              color: "#fff",
+              fontSize: "10px",
+              fontWeight: "bold",
+              padding: "4px 8px",
+              borderRadius: "10px",
+              border: "2px solid #fff",
+            }}
+          >
             Day {totalDays}
           </div>
         </div>
 
-        <h2 style={{ color: "#1e293b", fontSize: "22px", fontWeight: "900", margin: "0 0 8px 0" }}>Keep the streak alive!</h2>
-        <p style={{ color: "#64748b", fontSize: "14px", margin: 0, textAlign: "center", maxWidth: "80%" }}>
-          Sign in every day to increase your credit score and unlock VIP platform privileges.
+        <h2
+          style={{
+            color: "#1e293b",
+            fontSize: "22px",
+            fontWeight: "900",
+            margin: "0 0 8px 0",
+          }}
+        >
+          Keep the streak alive!
+        </h2>
+        <p
+          style={{
+            color: "#64748b",
+            fontSize: "14px",
+            margin: 0,
+            textAlign: "center",
+            maxWidth: "80%",
+          }}
+        >
+          Sign in every day to increase your credit score and unlock VIP
+          platform privileges.
         </p>
 
         {/* Action Button */}
@@ -374,44 +429,133 @@ export default function Calendar() {
           onClick={() => checkInMutation.mutate()}
           disabled={isCheckedInToday || checkInMutation.isPending}
           style={{
-            width: "100%", maxWidth: "300px", padding: "16px", borderRadius: "100px", fontSize: "16px", fontWeight: "bold", color: "#fff", border: "none", marginTop: "24px",
+            width: "100%",
+            maxWidth: "300px",
+            padding: "16px",
+            borderRadius: "100px",
+            fontSize: "16px",
+            fontWeight: "bold",
+            color: "#fff",
+            border: "none",
+            marginTop: "24px",
             cursor: isCheckedInToday ? "not-allowed" : "pointer",
-            background: isCheckedInToday ? "#10b981" : "linear-gradient(135deg, #f02d65 0%, #ff6b35 100%)",
-            boxShadow: isCheckedInToday ? "0 4px 15px rgba(16, 185, 129, 0.3)" : "0 4px 15px rgba(240, 45, 101, 0.3)",
-            display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", transition: "transform 0.1s"
+            background: isCheckedInToday
+              ? "#10b981"
+              : "linear-gradient(135deg, #f02d65 0%, #ff6b35 100%)",
+            boxShadow: isCheckedInToday
+              ? "0 4px 15px rgba(16, 185, 129, 0.3)"
+              : "0 4px 15px rgba(240, 45, 101, 0.3)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "8px",
+            transition: "transform 0.1s",
           }}
-          onMouseDown={(e) => !isCheckedInToday && (e.currentTarget.style.transform = "scale(0.96)")}
-          onMouseUp={(e) => !isCheckedInToday && (e.currentTarget.style.transform = "scale(1)")}
+          onMouseDown={(e) =>
+            !isCheckedInToday &&
+            (e.currentTarget.style.transform = "scale(0.96)")
+          }
+          onMouseUp={(e) =>
+            !isCheckedInToday && (e.currentTarget.style.transform = "scale(1)")
+          }
         >
           {checkInMutation.isPending ? (
             <Loader2 size={20} className="animate-spin" />
           ) : isCheckedInToday ? (
-            <><Check size={20} strokeWidth={3} /> Signed In Today</>
+            <>
+              <Check size={20} strokeWidth={3} /> Signed In Today
+            </>
           ) : (
-            <><CalendarCheck size={20} /> Sign In Now</>
+            <>
+              <CalendarCheck size={20} /> Sign In Now
+            </>
           )}
         </button>
       </div>
 
       {/* ════════════ WEEKLY TRACKER ════════════ */}
       <div style={{ padding: "24px 16px" }}>
-        <h3 style={{ color: "#1e293b", fontSize: "16px", fontWeight: "bold", margin: "0 0 16px 0" }}>This Week's Progress</h3>
-        
-        <div style={{ backgroundColor: "#fff", borderRadius: "20px", padding: "20px", boxShadow: "0 4px 20px rgba(0,0,0,0.03)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <h3
+          style={{
+            color: "#1e293b",
+            fontSize: "16px",
+            fontWeight: "bold",
+            margin: "0 0 16px 0",
+          }}
+        >
+          This Week's Progress
+        </h3>
+
+        <div
+          style={{
+            backgroundColor: "#fff",
+            borderRadius: "20px",
+            padding: "20px",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.03)",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           {daysOfWeek.map((day, idx) => {
-            const isPassed = idx < (totalDays % 7);
-            const isToday = idx === (totalDays % 7);
-            
+            // const isPassed = idx < totalDays % 7;
+            // const isToday = idx === totalDays % 7;
+            const todayIdx = (new Date().getDay() + 6) % 7;
+            const isPassed = idx < todayIdx;
+            const isToday = idx === todayIdx;
+
             return (
-              <div key={day} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
-                <span style={{ color: isToday ? "#f02d65" : "#94a3b8", fontSize: "11px", fontWeight: isToday ? "bold" : "600" }}>{day}</span>
-                <div style={{ 
-                  width: "32px", height: "32px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.3s",
-                  backgroundColor: isPassed ? "#10b981" : isToday && isCheckedInToday ? "#10b981" : isToday ? "#fff1f2" : "#f1f5f9",
-                  border: isToday && !isCheckedInToday ? "2px solid #f02d65" : "none",
-                  color: isPassed || (isToday && isCheckedInToday) ? "#fff" : isToday ? "#f02d65" : "#cbd5e1"
-                }}>
-                  {(isPassed || (isToday && isCheckedInToday)) ? <Check size={16} strokeWidth={3} /> : <Gift size={14} />}
+              <div
+                key={day}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: "8px",
+                }}
+              >
+                <span
+                  style={{
+                    color: isToday ? "#f02d65" : "#94a3b8",
+                    fontSize: "11px",
+                    fontWeight: isToday ? "bold" : "600",
+                  }}
+                >
+                  {day}
+                </span>
+                <div
+                  style={{
+                    width: "32px",
+                    height: "32px",
+                    borderRadius: "50%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    transition: "all 0.3s",
+                    backgroundColor: isPassed
+                      ? "#10b981"
+                      : isToday && isCheckedInToday
+                        ? "#10b981"
+                        : isToday
+                          ? "#fff1f2"
+                          : "#f1f5f9",
+                    border:
+                      isToday && !isCheckedInToday
+                        ? "2px solid #f02d65"
+                        : "none",
+                    color:
+                      isPassed || (isToday && isCheckedInToday)
+                        ? "#fff"
+                        : isToday
+                          ? "#f02d65"
+                          : "#cbd5e1",
+                  }}
+                >
+                  {isPassed || (isToday && isCheckedInToday) ? (
+                    <Check size={16} strokeWidth={3} />
+                  ) : (
+                    <Gift size={14} />
+                  )}
                 </div>
               </div>
             );
@@ -421,16 +565,47 @@ export default function Calendar() {
 
       {/* ════════════ RULES CARD ════════════ */}
       <div style={{ padding: "0 16px 40px 16px" }}>
-        <div style={{ backgroundColor: "#f8fafc", borderRadius: "16px", padding: "20px", border: "1px dashed #e2e8f0" }}>
-          <h3 style={{ color: "#64748b", fontSize: "13px", fontWeight: "bold", margin: "0 0 12px 0", textTransform: "uppercase", letterSpacing: "1px" }}>Attendance Rules</h3>
-          <ul style={{ margin: 0, padding: "0 0 0 16px", color: "#64748b", fontSize: "13px", lineHeight: "1.6", display: "flex", flexDirection: "column", gap: "8px" }}>
+        <div
+          style={{
+            backgroundColor: "#f8fafc",
+            borderRadius: "16px",
+            padding: "20px",
+            border: "1px dashed #e2e8f0",
+          }}
+        >
+          <h3
+            style={{
+              color: "#64748b",
+              fontSize: "13px",
+              fontWeight: "bold",
+              margin: "0 0 12px 0",
+              textTransform: "uppercase",
+              letterSpacing: "1px",
+            }}
+          >
+            Attendance Rules
+          </h3>
+          <ul
+            style={{
+              margin: 0,
+              padding: "0 0 0 16px",
+              color: "#64748b",
+              fontSize: "13px",
+              lineHeight: "1.6",
+              display: "flex",
+              flexDirection: "column",
+              gap: "8px",
+            }}
+          >
             <li>Sign in daily to maintain your platform Credit Score.</li>
             <li>A high Credit Score is required for VIP level upgrades.</li>
-            <li>Missing a day will not reset your total days, but consistent sign-ins are recommended.</li>
+            <li>
+              Missing a day will not reset your total days, but consistent
+              sign-ins are recommended.
+            </li>
           </ul>
         </div>
       </div>
-
     </div>
   );
 }

@@ -542,7 +542,7 @@ export default function Products() {
                             fontFamily: "monospace",
                           }}
                         >
-                          ${product.sellingPrice?.toFixed(2)}
+                          ${product.salesPrice?.toFixed(2)}
                         </p>
                       </div>
                       <div style={{ textAlign: "right" }}>

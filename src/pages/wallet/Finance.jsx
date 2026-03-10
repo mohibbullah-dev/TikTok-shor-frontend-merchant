@@ -103,6 +103,7 @@ import {
   ShoppingCart,
   ArrowDownRight,
   ArrowUpRight,
+  CheckCircle2,
 } from "lucide-react";
 
 export default function Finance() {
@@ -111,7 +112,7 @@ export default function Finance() {
     queryKey: ["myTransactions"],
     queryFn: async () => {
       // Endpoint from your backend generic transaction ledger
-      const { data } = await API.get("/transactions/my-transactions");
+      const { data } = await API.get("/transactions/my-records");
       return data.transactions || [];
     },
   });

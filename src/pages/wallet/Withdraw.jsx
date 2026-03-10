@@ -384,7 +384,7 @@ export default function Withdraw() {
 
   const [amount, setAmount] = useState("");
   const [walletAddress, setWalletAddress] = useState("");
-
+  const [paymentPassword, setPaymentPassword] = useState("");
   const { data: settings } = useQuery({
     queryKey: ["systemSettings"],
     queryFn: async () => {
@@ -404,10 +404,14 @@ export default function Withdraw() {
       if (amount > merchant.balance)
         throw new Error("Insufficient available balance");
 
-      const { data } = await API.post("/withdrawals", {
-        amount: Number(amount),
+      // AFTER:
+      const { data } = await API.post("/withdrawal", {
+        // ✅ fix URL too (singular)
+        extractPrice: Number(amount),
+        extractType: "blockchain", // ✅ required enum field
         walletAddress,
-        network: "TRC20", // Defaulting to standard
+        network: "USDT-TRC20",
+        paymentPassword: paymentPassword, // ✅ see BUG 4
       });
       return data;
     },
@@ -712,10 +716,57 @@ export default function Withdraw() {
           />
         </div>
 
+        {/* Payment Password */}
+        <div
+          style={{
+            backgroundColor: "#fff",
+            padding: "20px",
+            borderRadius: "16px",
+            boxShadow: "0 2px 10px rgba(0,0,0,0.02)",
+          }}
+        >
+          <label
+            style={{
+              display: "block",
+              color: "#1e293b",
+              fontSize: "14px",
+              fontWeight: "bold",
+              marginBottom: "12px",
+            }}
+          >
+            Payment Password
+          </label>
+          <input
+            type="password"
+            value={paymentPassword}
+            onChange={(e) => setPaymentPassword(e.target.value)}
+            placeholder="Enter your 6-digit payment password"
+            style={{
+              width: "100%",
+              padding: "16px",
+              backgroundColor: "#f8fafc",
+              border: "1px solid #e2e8f0",
+              borderRadius: "12px",
+              fontSize: "16px",
+              color: "#1e293b",
+              outline: "none",
+              fontFamily: "monospace",
+              letterSpacing: "4px",
+            }}
+            onFocus={(e) => (e.target.style.borderColor = "#f02d65")}
+            onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
+          />
+        </div>
+
         {/* Submit Button */}
         <button
           onClick={() => submitMutation.mutate()}
-          disabled={submitMutation.isPending || !amount || !walletAddress}
+          disabled={
+            submitMutation.isPending ||
+            !amount ||
+            !walletAddress ||
+            !paymentPassword
+          }
           style={{
             width: "100%",
             padding: "16px",

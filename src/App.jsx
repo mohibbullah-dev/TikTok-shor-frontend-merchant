@@ -25,7 +25,7 @@ import Language from "./pages/profile/Language";
 import Recharge from "./pages/wallet/Recharge";
 import WalletRecharge from "./pages/wallet/WalletRecharge";
 import Withdraw from "./pages/wallet/Withdraw";
-import FundsRecords from "./pages/wallet/FundsRecords";
+// import FundsRecords from "./pages/wallet/FundsRecords";
 import Finance from "./pages/wallet/Finance";
 import VipUpgrade from "./pages/vip/VipUpgrade";
 import Calendar from "./pages/attendance/Calendar";
@@ -34,6 +34,9 @@ import Messages from "./pages/notices/Messages";
 import Complaint from "./pages/complaints/Complaint";
 import Questions from "./pages/faq/Questions";
 import QuestionDetail from "./pages/faq/QuestionDetail";
+import RefundRequest from "./pages/orders/RefundRequest";
+import TrafficTasks from "./pages/tasks/TrafficTasks";
+import ForgotPassword from "./pages/auth/ForgotPassword";
 // Protected route component
 const ProtectedRoute = ({ children }) => {
   const { token, user } = useSelector((state) => state.auth);
@@ -57,7 +60,7 @@ const App = () => {
       {/* Public routes */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-
+      <Route path="/forgot-password" element={<ForgotPassword />} />
       {/* Protected merchant routes */}
       <Route
         path="/"
@@ -67,6 +70,7 @@ const App = () => {
           </ProtectedRoute>
         }
       />
+
       <Route
         path="/orders"
         element={
@@ -183,7 +187,7 @@ const App = () => {
         path="/funds"
         element={
           <ProtectedRoute>
-            <FundsRecords />
+            <Finance />
           </ProtectedRoute>
         }
       />
@@ -255,6 +259,22 @@ const App = () => {
 
       {/* Catch all */}
       <Route path="*" element={<Navigate to="/" replace />} />
+      <Route
+        path="/tasks"
+        element={
+          <ProtectedRoute>
+            <TrafficTasks />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/refund-request"
+        element={
+          <ProtectedRoute>
+            <RefundRequest />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 };

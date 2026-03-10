@@ -203,10 +203,12 @@ export default function Recharge() {
       if (!proofImage)
         throw new Error("Please upload a transaction screenshot");
 
-      const { data } = await API.post("/recharges", {
-        amount: Number(amount),
-        network,
-        proofImage,
+      const { data } = await API.post("/recharge", {
+        // ✅ fix URL too (see BUG 2)
+        price: Number(amount),
+        rechargeType: `USDT-${network}`,
+        currencyType: "USD",
+        voucher: proofImage,
       });
       return data;
     },

@@ -339,6 +339,7 @@ import { Search, Loader2, Package, Check, Flame } from "lucide-react";
 const Distribution = () => {
   const dispatch = useDispatch();
   const { selectedProducts } = useSelector((state) => state.cart);
+  console.log("selectedProducts :", selectedProducts);
   const queryClient = useQueryClient();
 
   const [activeCategory, setActiveCategory] = useState("all");
@@ -366,7 +367,8 @@ const Distribution = () => {
 
   const distributeMutation = useMutation({
     mutationFn: async (productId) => {
-      const { data } = await API.post(`/products/${productId}/distribute`);
+      // AFTER:
+      const { data } = await API.post(`/products/distribute/${productId}`);
       return data;
     },
     onSuccess: () => {
@@ -702,7 +704,7 @@ const Distribution = () => {
                             fontFamily: "monospace",
                           }}
                         >
-                          ${product.sellingPrice?.toFixed(2)}
+                          ${product.salesPrice?.toFixed(2)}
                         </span>
                       </div>
                       <div style={{ textAlign: "right" }}>

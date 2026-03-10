@@ -290,7 +290,15 @@ const Login = () => {
             nickname: data?.user?.nickname,
           },
           token: data?.token,
-          merchant: data?.user?.merchant,
+          merchant: {
+            // ✅ correctly mapped
+            merchantId: data?.user?.merchantId,
+            storeName: data?.user?.storeName,
+            storeLogo: data?.user?.storeLogo,
+            balance: data?.user?.balance,
+            vipLevel: data?.user?.vipLevel,
+            status: data?.user?.status,
+          },
         }),
       );
 
@@ -455,6 +463,20 @@ const Login = () => {
                 )}
               </button>
             </div>
+            {/* ✅ NEW: Forgot Password Link */}
+            <div className="flex justify-end" style={{ marginTop: "10px" }}>
+              <Link
+                to="/forgot-password"
+                className="font-bold hover:opacity-80 transition-opacity"
+                style={{
+                  fontSize: "13px",
+                  color: "#f02d65",
+                  textDecoration: "none",
+                }}
+              >
+                Forgot Password?
+              </Link>
+            </div>
           </div>
 
           {/* Login Button */}
@@ -464,7 +486,7 @@ const Login = () => {
             className="w-full text-white font-bold border-none flex items-center justify-center transition-transform"
             style={{
               padding: "16px",
-              marginTop: "12px",
+              marginTop: "4px",
               borderRadius: "12px",
               fontSize: "15px",
               boxShadow: "0 4px 14px rgba(255, 107, 53, 0.3)",

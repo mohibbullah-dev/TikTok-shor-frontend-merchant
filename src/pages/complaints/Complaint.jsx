@@ -385,7 +385,7 @@ export default function Complaint() {
   const fileInputRef = useRef(null);
 
   const [formData, setFormData] = useState({
-    title: "",
+    orderSn: "",
     content: "",
     images: [], // Storing as array to handle multiple if needed, or single
   });
@@ -420,7 +420,8 @@ export default function Complaint() {
 
   const submitMutation = useMutation({
     mutationFn: async () => {
-      if (!formData.title || !formData.content)
+      if (!formData.orderSn || !formData.content)
+        // was: title
         throw new Error("Please fill in all required fields");
       const { data } = await API.post("/complaints", formData);
       return data;
@@ -524,11 +525,11 @@ export default function Complaint() {
             </label>
             <input
               type="text"
-              value={formData.title}
+              value={formData.orderSn}
               onChange={(e) =>
-                setFormData({ ...formData, title: e.target.value })
+                setFormData({ ...formData, orderSn: e.target.value })
               }
-              placeholder="e.g., Order #12345 issue"
+              placeholder="e.g., ORD-20240101-00001"
               style={inputStyle}
               onFocus={(e) => (e.target.style.borderColor = "#f02d65")}
               onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
@@ -672,7 +673,7 @@ export default function Complaint() {
           onClick={() => submitMutation.mutate()}
           disabled={
             submitMutation.isPending ||
-            !formData.title ||
+            !formData.orderSn || // was: title
             !formData.content ||
             uploading
           }

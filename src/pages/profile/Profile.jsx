@@ -475,6 +475,7 @@ import {
   LogOut,
   Gem,
   AlertCircle,
+  TrendingUp,
 } from "lucide-react";
 
 export default function Profile() {
@@ -512,6 +513,11 @@ export default function Profile() {
           label: "My Team / Affiliates",
           icon: <Users size={20} color="#10b981" />,
           path: "/team",
+        },
+        {
+          label: "Traffic Tasks",
+          icon: <TrendingUp size={20} color="#f97316" />,
+          path: "/tasks",
         },
         {
           label: "Account Settings",

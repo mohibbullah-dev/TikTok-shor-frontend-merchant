@@ -344,7 +344,7 @@
 
 ///////////////////// ================== lates version (by memeni) =====================///////////////////////////
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import API from "../../api/axios";
 import {
@@ -377,6 +377,15 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [step, setStep] = useState(1);
+  const [searchParams] = useSearchParams();
+
+  // Auto-fill invitation code if it exists in the URL
+  useState(() => {
+    const code = searchParams.get("code");
+    if (code) {
+      setFormData((prev) => ({ ...prev, invitationCode: code }));
+    }
+  }, [searchParams]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
