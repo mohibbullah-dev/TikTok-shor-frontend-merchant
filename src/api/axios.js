@@ -2,7 +2,9 @@ import axios from "axios";
 
 // Base URL points to our backend
 const API = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL:
+    "https://tik-tok-shor-frontend-merchant.vercel.app/api" ||
+    "http://localhost:5000/api",
   headers: {
     "Content-Type": "application/json",
   },
