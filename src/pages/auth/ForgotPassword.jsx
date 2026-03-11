@@ -155,8 +155,20 @@ export default function ForgotPassword() {
                     maxLength={6}
                     value={otp}
                     onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))} // Only allow numbers
-                    className="text-gray-400 absolute top-1/2 -translate-y-1/2"
-                    style={{ left: "16px" }}
+                    className="w-full bg-gray-50 border border-gray-200 text-gray-800 outline-none transition-all"
+                    style={{
+                      padding: "14px 14px 14px 44px",
+                      borderRadius: "12px",
+                      fontSize: "14px",
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = "#ff6b35";
+                      e.target.style.backgroundColor = "#fff";
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = "#e5e7eb";
+                      e.target.style.backgroundColor = "#f9fafb";
+                    }}
                     placeholder="123456"
                   />
                 </div>
@@ -173,7 +185,7 @@ export default function ForgotPassword() {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Lock className="h-5 w-5 text-gray-400" />
                   </div>
-                  <input
+                  {/* <input
                     type="password"
                     required
                     minLength={6}
@@ -181,12 +193,34 @@ export default function ForgotPassword() {
                     onChange={(e) => setNewPassword(e.target.value)}
                     className="text-gray-400 absolute top-1/2 -translate-y-1/2"
                     style={{ left: "16px" }}
+                  /> */}
+                  <input
+                    type="password"
+                    required
+                    minLength={6}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="............"
+                    className="w-full bg-gray-50 border border-gray-200 text-gray-800 outline-none transition-all"
+                    style={{
+                      padding: "14px 14px 14px 44px",
+                      borderRadius: "12px",
+                      fontSize: "14px",
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = "#ff6b35";
+                      e.target.style.backgroundColor = "#fff";
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = "#e5e7eb";
+                      e.target.style.backgroundColor = "#f9fafb";
+                    }}
                   />
                 </div>
               </div>
 
               <div className="flex flex-col gap-3">
-                <button
+                {/* <button
                   type="submit"
                   disabled={isLoading}
                   className="absolute top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer"
@@ -194,8 +228,27 @@ export default function ForgotPassword() {
                 >
                   {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
                   {isLoading ? "Resetting..." : "Confirm New Password"}
-                </button>
+                </button> */}
 
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  style={{
+                    padding: "16px",
+                    marginTop: "4px",
+                    borderRadius: "12px",
+                    fontSize: "15px",
+                    boxShadow: "0 4px 14px rgba(255, 107, 53, 0.3)",
+                    cursor: "pointer",
+                    background:
+                      "linear-gradient(135deg, #f02d65 0%, #ff6b35 100%)",
+                    gap: "8px",
+                  }}
+                  className="w-full text-white font-bold border-none flex items-center justify-center transition-transform"
+                >
+                  {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+                  {isLoading ? "Sending..." : "Send Reset Code"}
+                </button>
                 <button
                   type="button"
                   onClick={() => setStep(1)}
