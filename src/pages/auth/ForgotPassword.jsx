@@ -147,7 +147,11 @@ export default function ForgotPassword() {
                 </label>
                 <div className="mt-1 relative rounded-md shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Key className="h-5 w-5 text-gray-400" />
+                    <Key
+                      size={18}
+                      className="text-gray-400 absolute top-1/2 -translate-y-1/2"
+                      style={{ left: "16px" }}
+                    />
                   </div>
                   <input
                     type="text"
@@ -183,7 +187,11 @@ export default function ForgotPassword() {
                 </label>
                 <div className="mt-1 relative rounded-md shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="h-5 w-5 text-gray-400" />
+                    <Lock
+                      size={18}
+                      className="text-gray-400 absolute top-1/2 -translate-y-1/2"
+                      style={{ left: "16px" }}
+                    />
                   </div>
                   {/* <input
                     type="password"
@@ -200,7 +208,7 @@ export default function ForgotPassword() {
                     minLength={6}
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder="............"
+                    placeholder="Enter new password"
                     className="w-full bg-gray-50 border border-gray-200 text-gray-800 outline-none transition-all"
                     style={{
                       padding: "14px 14px 14px 44px",
