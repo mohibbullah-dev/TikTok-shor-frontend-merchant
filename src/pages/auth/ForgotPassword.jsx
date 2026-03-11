@@ -139,7 +139,10 @@ export default function ForgotPassword() {
           {step === 2 && (
             <form onSubmit={handleResetPassword} className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label
+                  className="text-gray-600 font-medium block"
+                  style={{ fontSize: "13px", marginBottom: "8px" }}
+                >
                   6-Digit Code
                 </label>
                 <div className="mt-1 relative rounded-md shadow-sm">
@@ -152,14 +155,18 @@ export default function ForgotPassword() {
                     maxLength={6}
                     value={otp}
                     onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))} // Only allow numbers
-                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm font-mono tracking-widest"
+                    className="text-gray-400 absolute top-1/2 -translate-y-1/2"
+                    style={{ left: "16px" }}
                     placeholder="123456"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label
+                  className="text-gray-600 font-medium block"
+                  style={{ fontSize: "13px", marginBottom: "8px" }}
+                >
                   New Password
                 </label>
                 <div className="mt-1 relative rounded-md shadow-sm">
@@ -172,8 +179,8 @@ export default function ForgotPassword() {
                     minLength={6}
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
-                    placeholder="••••••••"
+                    className="text-gray-400 absolute top-1/2 -translate-y-1/2"
+                    style={{ left: "16px" }}
                   />
                 </div>
               </div>
@@ -182,7 +189,8 @@ export default function ForgotPassword() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full flex justify-center items-center gap-2 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none disabled:opacity-70 transition-colors"
+                  className="absolute top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer"
+                  style={{ right: "16px", padding: 0 }}
                 >
                   {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
                   {isLoading ? "Resetting..." : "Confirm New Password"}
@@ -191,7 +199,12 @@ export default function ForgotPassword() {
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="w-full flex justify-center items-center py-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+                  className="font-bold hover:opacity-80 transition-opacity"
+                  style={{
+                    fontSize: "13px",
+                    color: "#f02d65",
+                    textDecoration: "none",
+                  }}
                 >
                   Need a new code? Go back
                 </button>
