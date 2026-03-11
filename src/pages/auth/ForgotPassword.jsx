@@ -172,7 +172,19 @@ export default function ForgotPassword() {
                     minLength={6}
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                    className="w-full text-white font-bold border-none flex items-center justify-center transition-transform"
+                    style={{
+                      padding: "16px",
+                      marginTop: "4px",
+                      borderRadius: "12px",
+                      fontSize: "15px",
+                      boxShadow: "0 4px 14px rgba(255, 107, 53, 0.3)",
+                      // cursor: loading ? "not-allowed" : "pointer",
+                      // background: loading
+                      //   ? "#d1d5db"
+                      //   : "linear-gradient(135deg, #f02d65 0%, #ff6b35 100%)",
+                      gap: "8px",
+                    }}
                     placeholder="••••••••"
                   />
                 </div>
@@ -191,7 +203,19 @@ export default function ForgotPassword() {
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="w-full flex justify-center items-center py-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+                  className="w-full text-white font-bold border-none flex items-center justify-center transition-transform"
+                  style={{
+                    padding: "16px",
+                    marginTop: "4px",
+                    borderRadius: "12px",
+                    fontSize: "15px",
+                    boxShadow: "0 4px 14px rgba(255, 107, 53, 0.3)",
+                    // cursor: loading ? "not-allowed" : "pointer",
+                    // background: loading
+                    //   ? "#d1d5db"
+                    //   : "linear-gradient(135deg, #f02d65 0%, #ff6b35 100%)",
+                    // gap: "8px",
+                  }}
                 >
                   Need a new code? Go back
                 </button>
