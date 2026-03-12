@@ -1274,7 +1274,7 @@ const Register = () => {
     backgroundColor: "rgba(255,255,255,0.92)",
     border: "1.5px solid rgba(229,231,235,0.9)",
     borderRadius: "10px",
-    fontSize: "14px",
+    fontSize: "16px",
     color: "#121212",
     outline: "none",
     transition: "all 0.2s",
@@ -1377,7 +1377,7 @@ const Register = () => {
             >
               <ArrowLeft size={17} color="#fff" />
             </button>
-            <div>
+            <div className="flex items-center justify-center">
               <h1
                 className="font-bold text-white"
                 style={{ fontSize: "17px", margin: 0 }}
@@ -1460,20 +1460,20 @@ const Register = () => {
               <h2
                 className="font-extrabold text-center"
                 style={{
-                  fontSize: "18px",
-                  margin: "0 0 12px 0",
+                  fontSize: "20px",
+                  // margin: "0 0 12px 0",
                   color: "#121212",
                 }}
               >
-                Merchant Details
+                Seller Details
               </h2>
 
-              <div className="flex flex-col" style={{ gap: "10px" }}>
+              <div className="flex flex-col" style={{ gap: "5px" }}>
                 {/* Username */}
                 <div>
-                  <label style={labelStyle}>Username</label>
+                  <label style={labelStyle}>Name</label>
                   <div style={{ position: "relative" }}>
-                    <User size={15} style={iconStyle} />
+                    <User size={20} style={iconStyle} />
                     <input
                       type="text"
                       name="username"
