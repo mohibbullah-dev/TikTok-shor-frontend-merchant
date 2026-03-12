@@ -276,13 +276,12 @@ export default function ForgotPassword() {
           <div className="mt-6 text-center">
             <Link
               to="/login"
-              className="inline-flex items-center text-sm font-medium text-teal-600 hover:text-teal-500"
-              //   className="font-bold hover:opacity-80 transition-opacity"
               style={{
                 fontSize: "13px",
                 color: "#f02d65",
                 textDecoration: "none",
               }}
+              className="inline-flex items-center text-sm font-medium text-teal-600 hover:text-teal-500"
             >
               <ArrowLeft className="w-4 h-4 mr-1" />
               Back to Login
