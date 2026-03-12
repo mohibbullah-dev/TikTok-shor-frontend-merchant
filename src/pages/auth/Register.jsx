@@ -10,15 +10,16 @@ import {
   Loader2,
   FileImage,
   ClipboardCheck,
+  CheckCircle2,
 } from "lucide-react";
 
 const Register = () => {
   const navigate = useNavigate();
 
-  // 🛑 FUNCTIONALITY UNTOUCHED
   const [formData, setFormData] = useState({
     username: "",
     email: "",
+    storeAddress: "",
     password: "",
     confirmPassword: "",
     mobile: "",
@@ -27,6 +28,14 @@ const Register = () => {
     nidFront: null,
     nidBack: null,
   });
+
+  const [countryCode, setCountryCode] = useState("+86");
+  const [language, setLanguage] = useState("US English");
+  const [showLangDropdown, setShowLangDropdown] = useState(false);
+
+  const [previewFront, setPreviewFront] = useState(null);
+  const [previewBack, setPreviewBack] = useState(null);
+
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -45,11 +54,23 @@ const Register = () => {
   };
 
   const handleFileChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.files[0] });
+    const file = e.target.files[0];
+    if (file) {
+      setFormData({ ...formData, [e.target.name]: file });
+      const objectUrl = URL.createObjectURL(file);
+      if (e.target.name === "nidFront") setPreviewFront(objectUrl);
+      if (e.target.name === "nidBack") setPreviewBack(objectUrl);
+    }
   };
 
   const handleNextStep = () => {
-    if (!formData.username || !formData.email || !formData.password) {
+    if (
+      !formData.username ||
+      !formData.email ||
+      !formData.storeAddress ||
+      !formData.password ||
+      !formData.mobile
+    ) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -81,17 +102,16 @@ const Register = () => {
       const submitData = new FormData();
       submitData.append("username", formData.username);
       submitData.append("email", formData.email);
+      submitData.append("storeAddress", formData.storeAddress);
+      submitData.append("mobile", `${countryCode} ${formData.mobile}`);
       submitData.append("password", formData.password);
-      submitData.append("mobile", formData.mobile);
       submitData.append("storeName", formData.storeName);
       submitData.append("invitationCode", formData.invitationCode);
       submitData.append("nidFront", formData.nidFront);
       submitData.append("nidBack", formData.nidBack);
 
       await API.post("/auth/register", submitData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
       toast.success("Registration successful! Please login.");
@@ -103,13 +123,12 @@ const Register = () => {
     }
   };
 
-  // 🎨 UI CSS Variables (Matched to Official App Screenshot)
   const inputStyle = {
     width: "100%",
-    padding: "12px 14px", // No more heavy left padding (removed icons)
+    padding: "12px 14px",
     backgroundColor: "#ffffff",
     border: "1px solid #e5e7eb",
-    borderRadius: "6px", // Softer, smaller border radius like the official app
+    borderRadius: "4px",
     fontSize: "14px",
     color: "#121212",
     outline: "none",
@@ -119,56 +138,81 @@ const Register = () => {
   const labelStyle = {
     color: "#4b5563",
     fontSize: "13px",
-    fontWeight: "600",
+    fontWeight: "500",
     marginBottom: "6px",
     display: "block",
   };
 
+  const languages = ["US English", "Bangla", "Hindi"];
+
   return (
-    // ── Outer Desktop Wrapper ──
     <div className="min-h-screen w-full relative flex justify-center bg-gray-100">
-      {/* ── Inner Mobile App Container ── */}
       <div
-        className="w-full flex flex-col bg-white overflow-x-hidden"
+        className="w-full flex flex-col bg-white overflow-x-hidden relative"
         style={{ maxWidth: "480px", minHeight: "100vh" }}
       >
-        {/* ── Official TikTok Shop Header ── */}
-        <div className="flex justify-between items-center p-5">
-          <div className="font-extrabold text-[18px] tracking-tight flex items-center">
+        {/* ── Official Top Navigation Bar ── */}
+        <div className="flex justify-between items-center px-5 py-4 relative z-20">
+          <div className="flex items-center">
             {step === 2 && (
               <ArrowLeft
                 size={20}
-                className="mr-3 cursor-pointer text-gray-800"
+                className="mr-3 cursor-pointer text-gray-800 hover:text-gray-600"
                 onClick={() => setStep(1)}
               />
             )}
-            <span className="text-[#121212]">
-              <span className="text-[#E81155]">TikTok</span> Shop
-            </span>
+            {/* ✅ NEW: Using the exact uploaded logo image */}
+            <img
+              src="/logo_like_demo.jpg"
+              alt="TikTok Shop"
+              className="h-6 object-contain" // Adjusted height to match demo top bar
+            />
           </div>
-          <div className="text-[13px] text-[#018784] font-medium cursor-pointer">
-            US English <span className="text-[10px] ml-0.5">▼</span>
+
+          <div className="relative">
+            <div
+              className="text-[13px] text-[#018784] font-medium cursor-pointer flex items-center gap-1"
+              onClick={() => setShowLangDropdown(!showLangDropdown)}
+            >
+              {language} <span className="text-[9px]">▼</span>
+            </div>
+            {showLangDropdown && (
+              <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-100 shadow-lg rounded-md overflow-hidden z-50">
+                {languages.map((lang) => (
+                  <div
+                    key={lang}
+                    onClick={() => {
+                      setLanguage(lang);
+                      setShowLangDropdown(false);
+                    }}
+                    className="px-4 py-2 text-[13px] text-gray-700 hover:bg-gray-50 cursor-pointer"
+                  >
+                    {lang}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
         {/* ── Centered Hero Illustration ── */}
         <div className="flex flex-col items-center justify-center mt-2 mb-6">
-          {/* Ensure this image points to the exact graphic you uploaded */}
+          {/* ✅ NEW: Using the exact uploaded hero illustration */}
           <img
-            src="/bg_image.jpg"
+            src="/hero_image_like_demo.jpg"
             alt="Hero Illustration"
-            className="w-36 h-36 object-contain mb-3"
+            className="w-48 h-48 object-contain mb-2" // Slightly larger to match the demo's visual weight
           />
-          <h1 className="text-[24px] font-bold text-[#121212]">
+          <h1 className="text-[22px] font-bold text-[#121212]">
             {step === 1 ? "Create Account" : "Store Info"}
           </h1>
           <p className="text-[13px] text-gray-400 mt-1">Step {step} of 2</p>
         </div>
 
         {/* ── Form Container ── */}
-        <div className="px-6 pb-10">
+        <div className="px-6 pb-12">
           {step === 1 ? (
-            <div className="flex flex-col" style={{ gap: "16px" }}>
+            <div className="flex flex-col" style={{ gap: "18px" }}>
               <div>
                 <label style={labelStyle}>Username</label>
                 <input
@@ -185,12 +229,6 @@ const Register = () => {
 
               <div>
                 <label style={labelStyle}>Email Address</label>
-                <div className="flex justify-end mb-1 mt(-20px)">
-                  {/* Official link placement */}
-                  <span className="text-[12px] text-[#018784] font-medium absolute right-6 -mt-6 cursor-pointer">
-                    Register with Phone
-                  </span>
-                </div>
                 <input
                   type="email"
                   name="email"
@@ -204,13 +242,33 @@ const Register = () => {
               </div>
 
               <div>
-                <label style={labelStyle}>Mobile Number</label>
-                <div className="relative flex">
-                  {/* Fake Country Code Box to match design */}
-                  <div className="flex items-center justify-center px-3 border border-r-0 border-[#e5e7eb] rounded-l-[6px] bg-gray-50 text-[14px] text-gray-600">
-                    CN +86{" "}
-                    <span className="text-[10px] ml-1 text-gray-400">▼</span>
-                  </div>
+                <label style={labelStyle}>Physical Address</label>
+                <input
+                  type="text"
+                  name="storeAddress"
+                  value={formData.storeAddress}
+                  onChange={handleChange}
+                  placeholder="Enter complete address"
+                  style={inputStyle}
+                  onFocus={(e) => (e.target.style.borderColor = "#018784")}
+                  onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
+                />
+              </div>
+
+              <div>
+                <label style={labelStyle}>Phone number</label>
+                <div className="flex">
+                  <select
+                    value={countryCode}
+                    onChange={(e) => setCountryCode(e.target.value)}
+                    className="px-3 border border-r-0 border-[#e5e7eb] rounded-l-[4px] bg-white text-[14px] text-gray-600 focus:outline-none cursor-pointer appearance-none"
+                    style={{ minWidth: "80px", textAlign: "center" }}
+                  >
+                    <option value="+86">CN +86</option>
+                    <option value="+1">US +1</option>
+                    <option value="+880">BD +880</option>
+                    <option value="+20">EG +20</option>
+                  </select>
                   <input
                     type="tel"
                     name="mobile"
@@ -229,52 +287,71 @@ const Register = () => {
               </div>
 
               <div>
-                <label style={labelStyle}>NID / Passport (Front)</label>
-                <div className="relative border border-[#e5e7eb] rounded-[6px] overflow-hidden transition-all focus-within:border-[#018784]">
-                  <FileImage
-                    size={16}
-                    className="text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"
-                  />
-                  <input
-                    type="file"
-                    name="nidFront"
-                    accept="image/jpeg, image/png, image/webp"
-                    onChange={handleFileChange}
-                    style={{
-                      width: "100%",
-                      padding: "10px 14px 10px 36px",
-                      fontSize: "13px",
-                      color: "#4b5563",
-                      outline: "none",
-                      cursor: "pointer",
-                      backgroundColor: "#fff",
-                    }}
-                  />
-                </div>
-              </div>
+                <label style={labelStyle}>Government ID / Passport</label>
+                <div className="grid grid-cols-2 gap-3">
+                  {/* Front ID Box */}
+                  <div className="relative h-24 bg-[#f9fafb] border border-dashed border-[#d1d5db] rounded-[6px] overflow-hidden flex flex-col items-center justify-center hover:bg-gray-50 transition-colors group">
+                    {previewFront ? (
+                      <>
+                        <img
+                          src={previewFront}
+                          alt="Front ID"
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <span className="text-white text-[11px] font-bold">
+                            Change
+                          </span>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <FileImage size={20} className="text-gray-400 mb-1" />
+                        <span className="text-[11px] text-gray-500 font-medium">
+                          Front Side
+                        </span>
+                      </>
+                    )}
+                    <input
+                      type="file"
+                      name="nidFront"
+                      accept="image/jpeg, image/png, image/webp"
+                      onChange={handleFileChange}
+                      className="absolute inset-0 opacity-0 cursor-pointer"
+                    />
+                  </div>
 
-              <div>
-                <label style={labelStyle}>NID / Passport (Back)</label>
-                <div className="relative border border-[#e5e7eb] rounded-[6px] overflow-hidden transition-all focus-within:border-[#018784]">
-                  <FileImage
-                    size={16}
-                    className="text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"
-                  />
-                  <input
-                    type="file"
-                    name="nidBack"
-                    accept="image/jpeg, image/png, image/webp"
-                    onChange={handleFileChange}
-                    style={{
-                      width: "100%",
-                      padding: "10px 14px 10px 36px",
-                      fontSize: "13px",
-                      color: "#4b5563",
-                      outline: "none",
-                      cursor: "pointer",
-                      backgroundColor: "#fff",
-                    }}
-                  />
+                  {/* Back ID Box */}
+                  <div className="relative h-24 bg-[#f9fafb] border border-dashed border-[#d1d5db] rounded-[6px] overflow-hidden flex flex-col items-center justify-center hover:bg-gray-50 transition-colors group">
+                    {previewBack ? (
+                      <>
+                        <img
+                          src={previewBack}
+                          alt="Back ID"
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <span className="text-white text-[11px] font-bold">
+                            Change
+                          </span>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <FileImage size={20} className="text-gray-400 mb-1" />
+                        <span className="text-[11px] text-gray-500 font-medium">
+                          Back Side
+                        </span>
+                      </>
+                    )}
+                    <input
+                      type="file"
+                      name="nidBack"
+                      accept="image/jpeg, image/png, image/webp"
+                      onChange={handleFileChange}
+                      className="absolute inset-0 opacity-0 cursor-pointer"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -343,12 +420,12 @@ const Register = () => {
               <button
                 type="button"
                 onClick={handleNextStep}
-                className="w-full text-white font-bold border-none mt-4 transition-colors"
+                className="w-full text-white font-semibold border-none mt-2 transition-opacity hover:opacity-90"
                 style={{
-                  padding: "14px",
-                  borderRadius: "6px",
+                  padding: "12px",
+                  borderRadius: "4px",
                   fontSize: "15px",
-                  backgroundColor: "#018784", // EXACT TIKTOK TEAL FROM SCREENSHOT
+                  backgroundColor: "#018784",
                   cursor: "pointer",
                 }}
               >
@@ -382,22 +459,15 @@ const Register = () => {
                   name="invitationCode"
                   value={formData.invitationCode}
                   onChange={handleChange}
-                  placeholder="6-digit code"
+                  placeholder="6-digit admin code"
                   maxLength={6}
                   className="tracking-widest font-bold uppercase"
                   style={{ ...inputStyle, color: "#018784", fontSize: "16px" }}
                   onFocus={(e) => (e.target.style.borderColor = "#018784")}
                   onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
                 />
-                <p
-                  className="text-gray-400"
-                  style={{ fontSize: "11px", margin: "6px 0 0 4px" }}
-                >
-                  * Required field. Provided by admin.
-                </p>
               </div>
 
-              {/* ── Minimal Summary Box ── */}
               <div
                 style={{
                   marginTop: "8px",
@@ -423,7 +493,7 @@ const Register = () => {
                   style={{
                     color: "#4b5563",
                     fontSize: "13px",
-                    margin: "0 0 4px 0",
+                    margin: "0 0 6px 0",
                   }}
                 >
                   <strong>User:</strong> {formData.username}
@@ -432,26 +502,37 @@ const Register = () => {
                   style={{
                     color: "#4b5563",
                     fontSize: "13px",
-                    margin: "0 0 4px 0",
+                    margin: "0 0 6px 0",
                   }}
                 >
-                  <strong>Email:</strong> {formData.email}
+                  <strong>Phone:</strong> {countryCode} {formData.mobile}
                 </p>
-                <p style={{ color: "#4b5563", fontSize: "13px", margin: "0" }}>
-                  <strong>IDs attached:</strong>{" "}
-                  {formData.nidFront && formData.nidBack ? "Yes" : "No"}
+                <p
+                  style={{
+                    color: "#4b5563",
+                    fontSize: "13px",
+                    margin: "0 0 6px 0",
+                  }}
+                >
+                  <strong>Address:</strong> {formData.storeAddress}
+                </p>
+                <p
+                  className="flex items-center text-[#018784] font-medium"
+                  style={{ fontSize: "13px", margin: "0" }}
+                >
+                  <CheckCircle2 size={14} className="mr-1" /> IDs Uploaded
                 </p>
               </div>
 
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full text-white font-bold border-none flex items-center justify-center transition-colors mt-4"
+                className="w-full text-white font-semibold border-none flex items-center justify-center transition-opacity mt-2"
                 style={{
-                  padding: "14px",
-                  borderRadius: "6px",
+                  padding: "12px",
+                  borderRadius: "4px",
                   fontSize: "15px",
-                  backgroundColor: loading ? "#d1d5db" : "#018784", // EXACT TIKTOK TEAL
+                  backgroundColor: loading ? "#d1d5db" : "#018784",
                   cursor: loading ? "not-allowed" : "pointer",
                   gap: "8px",
                 }}
@@ -461,21 +542,20 @@ const Register = () => {
                     <Loader2 size={16} className="animate-spin" /> Creating...
                   </>
                 ) : (
-                  "Create Account"
+                  "Register Store"
                 )}
               </button>
             </form>
           )}
 
-          {/* ── Official Link Formatting ── */}
-          <div className="flex items-center justify-center mt-8 text-[13px] text-gray-500">
-            Don't have an account yet?{" "}
+          <div className="flex items-center justify-center mt-6 text-[13px] text-gray-500">
+            Already have an account?{" "}
             <Link
               to="/login"
               className="font-medium ml-1"
-              style={{ color: "#018784", textDecoration: "none" }} // TikTok Teal Link
+              style={{ color: "#018784", textDecoration: "none" }}
             >
-              Sign up
+              Log in
             </Link>
           </div>
         </div>
