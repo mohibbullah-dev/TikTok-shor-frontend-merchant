@@ -228,7 +228,7 @@ const Register = () => {
                   name="username"
                   value={formData.username}
                   onChange={handleChange}
-                  placeholder="Enter N"
+                  placeholder="Enter Name"
                   style={inputStyle}
                   onFocus={(e) => (e.target.style.borderColor = "#018784")}
                   onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
@@ -686,7 +686,7 @@ const Register = () => {
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
-                    placeholder="Enter your password"
+                    placeholder="Enter password"
                     style={{ ...inputStyle, paddingRight: "40px" }}
                     onFocus={(e) => (e.target.style.borderColor = "#018784")}
                     onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
@@ -715,7 +715,7 @@ const Register = () => {
                     name="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    placeholder="Repeat your password"
+                    placeholder="Confirm password"
                     style={{ ...inputStyle, paddingRight: "40px" }}
                     onFocus={(e) => (e.target.style.borderColor = "#018784")}
                     onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
