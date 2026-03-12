@@ -1316,10 +1316,11 @@ const Register = () => {
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundImage: "url('/bg_image.jpg')",
+          backgroundImage: "url('/bg_image.png')",
           backgroundSize: "cover",
           backgroundPosition: "center",
-          opacity: 0.15, // Slightly higher so it's visible on large screens
+          // opacity: 0.15, // Slightly higher so it's visible on large screens
+          opacity: 1,
           zIndex: 0,
           pointerEvents: "none",
         }}
@@ -1410,7 +1411,7 @@ const Register = () => {
           }}
         >
           <img
-            src="/logo_2.png"
+            src="/logo_3.png"
             alt="TikTok Shop Logo"
             style={{
               width: "80px",
