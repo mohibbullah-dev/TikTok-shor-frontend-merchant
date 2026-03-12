@@ -1238,12 +1238,10 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!formData.storeName || !formData.invitationCode) {
       toast.error("Store name and invitation code are required");
       return;
     }
-
     setLoading(true);
     try {
       const submitData = new FormData();
@@ -1257,9 +1255,7 @@ const Register = () => {
       submitData.append("nidBack", formData.nidBack);
 
       await API.post("/auth/register", submitData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
       toast.success("Registration successful! Please login.");
@@ -1271,100 +1267,128 @@ const Register = () => {
     }
   };
 
-  // 🎨 UI CSS Variables
+  // ✅ Polished input — glassy with shadow
   const inputStyle = {
     width: "100%",
-    padding: "12px 14px 12px 42px",
-    backgroundColor: "rgba(255,255,255,0.85)", // ✅ Semi-transparent so bg image shows
-    border: "1px solid rgba(229,231,235,0.8)",
+    padding: "11px 14px 11px 40px",
+    backgroundColor: "rgba(255,255,255,0.92)",
+    border: "1.5px solid rgba(229,231,235,0.9)",
     borderRadius: "10px",
     fontSize: "14px",
     color: "#121212",
     outline: "none",
     transition: "all 0.2s",
+    boxShadow: "0 1px 4px rgba(0,0,0,0.07)",
+    boxSizing: "border-box",
   };
 
   const iconStyle = {
     position: "absolute",
-    left: "14px",
+    left: "13px",
     top: "50%",
     transform: "translateY(-50%)",
+    color: "#9ca3af",
+    pointerEvents: "none",
   };
 
   const labelStyle = {
-    color: "#121212",
+    color: "#1f2937",
     fontSize: "12px",
     fontWeight: "700",
     marginBottom: "4px",
     display: "block",
+    letterSpacing: "0.2px",
   };
 
   return (
-    <div className="min-h-screen w-full relative flex justify-center bg-gray-100">
+    <div
+      className="min-h-screen w-full flex justify-center"
+      style={{ backgroundColor: "#f3f4f6" }}
+    >
       <div
-        className="w-full flex flex-col relative bg-white shadow-2xl overflow-hidden"
+        className="w-full flex flex-col relative overflow-hidden"
         style={{
           maxWidth: "480px",
           minHeight: "100vh",
-          margin: "0px",
-          padding: "0px",
+          margin: 0,
+          padding: 0,
+          boxShadow: "0 0 40px rgba(0,0,0,0.15)",
         }}
       >
-        {/* ✅ BACKGROUND IMAGE - 100% visible */}
+        {/* ✅ Blurred background image */}
         <div
           style={{
-            position: "absolute",
+            position: "fixed",
             top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: "100%",
+            maxWidth: "480px",
+            height: "100vh",
             backgroundImage: "url('/bg_image.png')",
             backgroundSize: "cover",
             backgroundPosition: "center",
-            opacity: 0.5,
+            filter: "blur(3px) brightness(1.05)",
             zIndex: 0,
             pointerEvents: "none",
           }}
         />
-
-        {/* ── Header (TikTok Dark: #121212) ── */}
+        {/* ✅ Soft white overlay for readability */}
         <div
-          className="flex flex-col relative z-10"
+          style={{
+            position: "fixed",
+            top: 0,
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: "100%",
+            maxWidth: "480px",
+            height: "100vh",
+            backgroundColor: "rgba(255,255,255,0.15)",
+            zIndex: 1,
+            pointerEvents: "none",
+          }}
+        />
+
+        {/* ── Header ── */}
+        <div
+          className="flex flex-col relative"
           style={{
             backgroundColor: "#121212",
-            paddingBottom: "40px",
+            paddingBottom: "34px",
+            zIndex: 10,
           }}
         >
           <div
             className="flex items-center"
-            style={{ padding: "30px 20px 15px 20px" }}
+            style={{ padding: "28px 18px 12px 18px" }}
           >
             <button
               onClick={() => (step === 2 ? setStep(1) : navigate("/login"))}
               className="flex items-center justify-center border-none cursor-pointer"
               style={{
-                width: "36px",
-                height: "36px",
+                width: "34px",
+                height: "34px",
                 backgroundColor: "rgba(255,255,255,0.1)",
                 borderRadius: "50%",
                 marginRight: "12px",
                 padding: 0,
+                flexShrink: 0,
               }}
             >
-              <ArrowLeft size={18} color="#fff" />
+              <ArrowLeft size={17} color="#fff" />
             </button>
             <div>
               <h1
-                className="font-bold text-white tracking-wide"
-                style={{ fontSize: "18px", margin: 0 }}
+                className="font-bold text-white"
+                style={{ fontSize: "17px", margin: 0 }}
               >
                 Create Account
               </h1>
               <p
                 style={{
                   color: "#018784",
-                  fontSize: "12px",
-                  fontWeight: "bold",
+                  fontSize: "11px",
+                  fontWeight: "700",
                   margin: "2px 0 0 0",
                 }}
               >
@@ -1373,11 +1397,11 @@ const Register = () => {
             </div>
           </div>
 
-          {/* ── Progress Bar ── */}
-          <div style={{ padding: "0 20px" }}>
+          {/* Progress Bar */}
+          <div style={{ padding: "0 18px" }}>
             <div
               style={{
-                height: "5px",
+                height: "4px",
                 backgroundColor: "rgba(255,255,255,0.15)",
                 borderRadius: "10px",
                 overflow: "hidden",
@@ -1396,38 +1420,39 @@ const Register = () => {
           </div>
         </div>
 
-        {/* ── Overlapping App Logo ── */}
+        {/* ── Logo — close to header ── */}
         <div
           style={{
             display: "flex",
             justifyContent: "center",
-            marginTop: "-35px",
+            marginTop: "-28px", // ✅ Tighter overlap
+            marginBottom: "4px", // ✅ Less gap before title
             position: "relative",
             zIndex: 20,
           }}
         >
           <img
             src="/logo_2.png"
-            alt="TikTok Shop Logo"
+            alt="App Logo"
             style={{
-              width: "70px",
-              height: "70px",
-              borderRadius: "18px",
+              width: "60px",
+              height: "60px",
+              borderRadius: "15px",
               border: "3px solid #fff",
-              boxShadow: "0 6px 12px rgba(0,0,0,0.1)",
+              boxShadow: "0 4px 14px rgba(0,0,0,0.18)",
               backgroundColor: "#121212",
               objectFit: "cover",
             }}
           />
         </div>
 
-        {/* ✅ FULLY TRANSPARENT FORM AREA - background image 100% visible */}
+        {/* ── Form Area ── */}
         <div
-          className="flex-1 flex flex-col relative z-10"
+          className="flex-1 flex flex-col relative"
           style={{
-            padding: "20px 20px 40px 20px",
-            backgroundColor: "transparent", // ✅ CHANGED: fully transparent
-            backdropFilter: "none", // ✅ CHANGED: no blur blocking bg
+            padding: "2px 18px 40px 18px",
+            zIndex: 10,
+            backgroundColor: "transparent",
           }}
         >
           {step === 1 ? (
@@ -1435,23 +1460,20 @@ const Register = () => {
               <h2
                 className="font-extrabold text-center"
                 style={{
-                  fontSize: "20px",
-                  margin: "0 0 10px 0",
+                  fontSize: "18px",
+                  margin: "0 0 12px 0",
                   color: "#121212",
                 }}
               >
-                Seller Details
+                Merchant Details
               </h2>
 
-              <div className="flex flex-col" style={{ gap: "12px" }}>
+              <div className="flex flex-col" style={{ gap: "10px" }}>
+                {/* Username */}
                 <div>
                   <label style={labelStyle}>Username</label>
-                  <div className="relative">
-                    <User
-                      size={16}
-                      className="text-gray-400"
-                      style={iconStyle}
-                    />
+                  <div style={{ position: "relative" }}>
+                    <User size={15} style={iconStyle} />
                     <input
                       type="text"
                       name="username"
@@ -1462,24 +1484,24 @@ const Register = () => {
                       onFocus={(e) => {
                         e.target.style.borderColor = "#018784";
                         e.target.style.backgroundColor = "#fff";
+                        e.target.style.boxShadow =
+                          "0 0 0 3px rgba(1,135,132,0.12)";
                       }}
                       onBlur={(e) => {
-                        e.target.style.borderColor = "rgba(229,231,235,0.8)";
+                        e.target.style.borderColor = "rgba(229,231,235,0.9)";
                         e.target.style.backgroundColor =
-                          "rgba(255,255,255,0.85)";
+                          "rgba(255,255,255,0.92)";
+                        e.target.style.boxShadow = "0 1px 4px rgba(0,0,0,0.07)";
                       }}
                     />
                   </div>
                 </div>
 
+                {/* Email */}
                 <div>
                   <label style={labelStyle}>Email Address</label>
-                  <div className="relative">
-                    <Mail
-                      size={16}
-                      className="text-gray-400"
-                      style={iconStyle}
-                    />
+                  <div style={{ position: "relative" }}>
+                    <Mail size={15} style={iconStyle} />
                     <input
                       type="email"
                       name="email"
@@ -1490,24 +1512,24 @@ const Register = () => {
                       onFocus={(e) => {
                         e.target.style.borderColor = "#018784";
                         e.target.style.backgroundColor = "#fff";
+                        e.target.style.boxShadow =
+                          "0 0 0 3px rgba(1,135,132,0.12)";
                       }}
                       onBlur={(e) => {
-                        e.target.style.borderColor = "rgba(229,231,235,0.8)";
+                        e.target.style.borderColor = "rgba(229,231,235,0.9)";
                         e.target.style.backgroundColor =
-                          "rgba(255,255,255,0.85)";
+                          "rgba(255,255,255,0.92)";
+                        e.target.style.boxShadow = "0 1px 4px rgba(0,0,0,0.07)";
                       }}
                     />
                   </div>
                 </div>
 
+                {/* Mobile */}
                 <div>
                   <label style={labelStyle}>Mobile Number</label>
-                  <div className="relative">
-                    <Phone
-                      size={16}
-                      className="text-gray-400"
-                      style={iconStyle}
-                    />
+                  <div style={{ position: "relative" }}>
+                    <Phone size={15} style={iconStyle} />
                     <input
                       type="tel"
                       name="mobile"
@@ -1518,31 +1540,33 @@ const Register = () => {
                       onFocus={(e) => {
                         e.target.style.borderColor = "#018784";
                         e.target.style.backgroundColor = "#fff";
+                        e.target.style.boxShadow =
+                          "0 0 0 3px rgba(1,135,132,0.12)";
                       }}
                       onBlur={(e) => {
-                        e.target.style.borderColor = "rgba(229,231,235,0.8)";
+                        e.target.style.borderColor = "rgba(229,231,235,0.9)";
                         e.target.style.backgroundColor =
-                          "rgba(255,255,255,0.85)";
+                          "rgba(255,255,255,0.92)";
+                        e.target.style.boxShadow = "0 1px 4px rgba(0,0,0,0.07)";
                       }}
                     />
                   </div>
                 </div>
 
+                {/* NID Front */}
                 <div>
                   <label style={labelStyle}>NID / Passport (Front)</label>
                   <div
-                    className="relative overflow-hidden transition-all"
                     style={{
-                      backgroundColor: "rgba(255,255,255,0.85)",
-                      border: "1px solid rgba(229,231,235,0.8)",
+                      position: "relative",
+                      backgroundColor: "rgba(255,255,255,0.92)",
+                      border: "1.5px solid rgba(229,231,235,0.9)",
                       borderRadius: "10px",
+                      overflow: "hidden",
+                      boxShadow: "0 1px 4px rgba(0,0,0,0.07)",
                     }}
                   >
-                    <FileImage
-                      size={16}
-                      className="text-gray-400"
-                      style={iconStyle}
-                    />
+                    <FileImage size={15} style={iconStyle} />
                     <input
                       type="file"
                       name="nidFront"
@@ -1550,7 +1574,7 @@ const Register = () => {
                       onChange={handleFileChange}
                       style={{
                         width: "100%",
-                        padding: "10px 14px 10px 42px",
+                        padding: "10px 14px 10px 40px",
                         fontSize: "13px",
                         color: "#4b5563",
                         outline: "none",
@@ -1561,21 +1585,20 @@ const Register = () => {
                   </div>
                 </div>
 
+                {/* NID Back */}
                 <div>
                   <label style={labelStyle}>NID / Passport (Back)</label>
                   <div
-                    className="relative overflow-hidden transition-all"
                     style={{
-                      backgroundColor: "rgba(255,255,255,0.85)",
-                      border: "1px solid rgba(229,231,235,0.8)",
+                      position: "relative",
+                      backgroundColor: "rgba(255,255,255,0.92)",
+                      border: "1.5px solid rgba(229,231,235,0.9)",
                       borderRadius: "10px",
+                      overflow: "hidden",
+                      boxShadow: "0 1px 4px rgba(0,0,0,0.07)",
                     }}
                   >
-                    <FileImage
-                      size={16}
-                      className="text-gray-400"
-                      style={iconStyle}
-                    />
+                    <FileImage size={15} style={iconStyle} />
                     <input
                       type="file"
                       name="nidBack"
@@ -1583,7 +1606,7 @@ const Register = () => {
                       onChange={handleFileChange}
                       style={{
                         width: "100%",
-                        padding: "10px 14px 10px 42px",
+                        padding: "10px 14px 10px 40px",
                         fontSize: "13px",
                         color: "#4b5563",
                         outline: "none",
@@ -1594,14 +1617,11 @@ const Register = () => {
                   </div>
                 </div>
 
+                {/* Password */}
                 <div>
                   <label style={labelStyle}>Password</label>
-                  <div className="relative">
-                    <Lock
-                      size={16}
-                      className="text-gray-400"
-                      style={iconStyle}
-                    />
+                  <div style={{ position: "relative" }}>
+                    <Lock size={15} style={iconStyle} />
                     <input
                       type={showPassword ? "text" : "password"}
                       name="password"
@@ -1612,37 +1632,41 @@ const Register = () => {
                       onFocus={(e) => {
                         e.target.style.borderColor = "#018784";
                         e.target.style.backgroundColor = "#fff";
+                        e.target.style.boxShadow =
+                          "0 0 0 3px rgba(1,135,132,0.12)";
                       }}
                       onBlur={(e) => {
-                        e.target.style.borderColor = "rgba(229,231,235,0.8)";
+                        e.target.style.borderColor = "rgba(229,231,235,0.9)";
                         e.target.style.backgroundColor =
-                          "rgba(255,255,255,0.85)";
+                          "rgba(255,255,255,0.92)";
+                        e.target.style.boxShadow = "0 1px 4px rgba(0,0,0,0.07)";
                       }}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute bg-transparent border-none cursor-pointer text-gray-400"
                       style={{
-                        right: "14px",
+                        position: "absolute",
+                        right: "13px",
                         top: "50%",
                         transform: "translateY(-50%)",
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        color: "#9ca3af",
                         padding: 0,
                       }}
                     >
-                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                      {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                     </button>
                   </div>
                 </div>
 
+                {/* Confirm Password */}
                 <div>
                   <label style={labelStyle}>Confirm Password</label>
-                  <div className="relative">
-                    <Lock
-                      size={16}
-                      className="text-gray-400"
-                      style={iconStyle}
-                    />
+                  <div style={{ position: "relative" }}>
+                    <Lock size={15} style={iconStyle} />
                     <input
                       type={showConfirmPassword ? "text" : "password"}
                       name="confirmPassword"
@@ -1653,11 +1677,14 @@ const Register = () => {
                       onFocus={(e) => {
                         e.target.style.borderColor = "#018784";
                         e.target.style.backgroundColor = "#fff";
+                        e.target.style.boxShadow =
+                          "0 0 0 3px rgba(1,135,132,0.12)";
                       }}
                       onBlur={(e) => {
-                        e.target.style.borderColor = "rgba(229,231,235,0.8)";
+                        e.target.style.borderColor = "rgba(229,231,235,0.9)";
                         e.target.style.backgroundColor =
-                          "rgba(255,255,255,0.85)";
+                          "rgba(255,255,255,0.92)";
+                        e.target.style.boxShadow = "0 1px 4px rgba(0,0,0,0.07)";
                       }}
                     />
                     <button
@@ -1665,18 +1692,22 @@ const Register = () => {
                       onClick={() =>
                         setShowConfirmPassword(!showConfirmPassword)
                       }
-                      className="absolute bg-transparent border-none cursor-pointer text-gray-400"
                       style={{
-                        right: "14px",
+                        position: "absolute",
+                        right: "13px",
                         top: "50%",
                         transform: "translateY(-50%)",
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        color: "#9ca3af",
                         padding: 0,
                       }}
                     >
                       {showConfirmPassword ? (
-                        <EyeOff size={16} />
+                        <EyeOff size={15} />
                       ) : (
-                        <Eye size={16} />
+                        <Eye size={15} />
                       )}
                     </button>
                   </div>
@@ -1685,14 +1716,16 @@ const Register = () => {
                 <button
                   type="button"
                   onClick={handleNextStep}
-                  className="w-full text-white font-bold border-none transition-transform mt-2"
+                  className="w-full text-white font-bold border-none transition-transform"
                   style={{
-                    padding: "14px",
+                    padding: "13px",
+                    marginTop: "6px",
                     borderRadius: "10px",
                     fontSize: "14px",
                     backgroundColor: "#E81155",
-                    boxShadow: "0 6px 16px rgba(232, 17, 85, 0.25)",
+                    boxShadow: "0 6px 16px rgba(232,17,85,0.3)",
                     cursor: "pointer",
+                    letterSpacing: "0.5px",
                   }}
                   onMouseDown={(e) =>
                     (e.currentTarget.style.transform = "scale(0.98)")
@@ -1710,8 +1743,8 @@ const Register = () => {
               <h2
                 className="font-extrabold text-center"
                 style={{
-                  fontSize: "20px",
-                  margin: "0 0 20px 0",
+                  fontSize: "18px",
+                  margin: "0 0 12px 0",
                   color: "#121212",
                 }}
               >
@@ -1721,16 +1754,13 @@ const Register = () => {
               <form
                 onSubmit={handleSubmit}
                 className="flex flex-col"
-                style={{ gap: "14px" }}
+                style={{ gap: "10px" }}
               >
+                {/* Store Name */}
                 <div>
                   <label style={labelStyle}>Store Name</label>
-                  <div className="relative">
-                    <Store
-                      size={16}
-                      className="text-gray-400"
-                      style={iconStyle}
-                    />
+                  <div style={{ position: "relative" }}>
+                    <Store size={15} style={iconStyle} />
                     <input
                       type="text"
                       name="storeName"
@@ -1741,24 +1771,24 @@ const Register = () => {
                       onFocus={(e) => {
                         e.target.style.borderColor = "#018784";
                         e.target.style.backgroundColor = "#fff";
+                        e.target.style.boxShadow =
+                          "0 0 0 3px rgba(1,135,132,0.12)";
                       }}
                       onBlur={(e) => {
-                        e.target.style.borderColor = "rgba(229,231,235,0.8)";
+                        e.target.style.borderColor = "rgba(229,231,235,0.9)";
                         e.target.style.backgroundColor =
-                          "rgba(255,255,255,0.85)";
+                          "rgba(255,255,255,0.92)";
+                        e.target.style.boxShadow = "0 1px 4px rgba(0,0,0,0.07)";
                       }}
                     />
                   </div>
                 </div>
 
+                {/* Invitation Code */}
                 <div>
                   <label style={labelStyle}>Invitation Code</label>
-                  <div className="relative">
-                    <Hash
-                      size={16}
-                      className="text-gray-400"
-                      style={iconStyle}
-                    />
+                  <div style={{ position: "relative" }}>
+                    <Hash size={15} style={iconStyle} />
                     <input
                       type="text"
                       name="invitationCode"
@@ -1776,48 +1806,56 @@ const Register = () => {
                       onFocus={(e) => {
                         e.target.style.borderColor = "#018784";
                         e.target.style.backgroundColor = "#fff";
+                        e.target.style.boxShadow =
+                          "0 0 0 3px rgba(1,135,132,0.12)";
                       }}
                       onBlur={(e) => {
-                        e.target.style.borderColor = "rgba(229,231,235,0.8)";
+                        e.target.style.borderColor = "rgba(229,231,235,0.9)";
                         e.target.style.backgroundColor =
-                          "rgba(255,255,255,0.85)";
+                          "rgba(255,255,255,0.92)";
+                        e.target.style.boxShadow = "0 1px 4px rgba(0,0,0,0.07)";
                       }}
                     />
                   </div>
                   <p
-                    className="text-center text-gray-400"
-                    style={{ fontSize: "11px", margin: "6px 0 0 0" }}
+                    className="text-center"
+                    style={{
+                      color: "#9ca3af",
+                      fontSize: "11px",
+                      margin: "5px 0 0 0",
+                    }}
                   >
                     * Ask your Merchant Admin for this code
                   </p>
                 </div>
 
-                {/* ── Summary Box ── */}
+                {/* Summary Box */}
                 <div
                   style={{
-                    marginTop: "10px",
-                    padding: "16px",
+                    marginTop: "4px",
+                    padding: "14px",
                     borderRadius: "10px",
-                    backgroundColor: "rgba(255,255,255,0.85)", // ✅ Semi-transparent
-                    border: "1px dashed #018784",
+                    backgroundColor: "rgba(255,255,255,0.92)",
+                    border: "1.5px dashed #018784",
+                    boxShadow: "0 1px 4px rgba(0,0,0,0.07)",
                   }}
                 >
                   <p
                     className="font-bold flex items-center"
                     style={{
                       color: "#018784",
-                      fontSize: "13px",
+                      fontSize: "12px",
                       gap: "6px",
                       margin: "0 0 10px 0",
                     }}
                   >
-                    <ClipboardCheck size={16} /> Registration Summary
+                    <ClipboardCheck size={14} /> Registration Summary
                   </p>
                   <p
                     style={{
                       color: "#121212",
                       fontSize: "12px",
-                      margin: "0 0 6px 0",
+                      margin: "0 0 5px 0",
                     }}
                   >
                     <strong>User:</strong> {formData.username}
@@ -1826,7 +1864,7 @@ const Register = () => {
                     style={{
                       color: "#121212",
                       fontSize: "12px",
-                      margin: "0 0 6px 0",
+                      margin: "0 0 5px 0",
                     }}
                   >
                     <strong>Email:</strong> {formData.email}
@@ -1835,7 +1873,7 @@ const Register = () => {
                     style={{
                       color: "#121212",
                       fontSize: "12px",
-                      margin: "0 0 6px 0",
+                      margin: "0 0 5px 0",
                     }}
                   >
                     <strong>NID Front:</strong>{" "}
@@ -1852,17 +1890,19 @@ const Register = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full text-white font-bold border-none flex items-center justify-center transition-transform mt-2"
+                  className="w-full text-white font-bold border-none flex items-center justify-center transition-transform"
                   style={{
-                    padding: "14px",
+                    padding: "13px",
+                    marginTop: "6px",
                     borderRadius: "10px",
                     fontSize: "14px",
                     backgroundColor: loading ? "#d1d5db" : "#E81155",
                     boxShadow: loading
                       ? "none"
-                      : "0 6px 16px rgba(232, 17, 85, 0.25)",
+                      : "0 6px 16px rgba(232,17,85,0.3)",
                     cursor: loading ? "not-allowed" : "pointer",
                     gap: "8px",
+                    letterSpacing: "0.5px",
                   }}
                   onMouseDown={(e) =>
                     !loading &&
@@ -1874,7 +1914,7 @@ const Register = () => {
                 >
                   {loading ? (
                     <>
-                      <Loader2 size={16} className="animate-spin" /> Creating...
+                      <Loader2 size={15} className="animate-spin" /> Creating...
                     </>
                   ) : (
                     "CREATE ACCOUNT"
@@ -1886,7 +1926,7 @@ const Register = () => {
 
           <p
             className="text-center"
-            style={{ color: "#121212", fontSize: "13px", marginTop: "24px" }}
+            style={{ color: "#1f2937", fontSize: "13px", marginTop: "20px" }}
           >
             Already have an account?{" "}
             <Link
