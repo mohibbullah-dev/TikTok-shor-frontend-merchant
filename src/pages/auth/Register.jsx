@@ -210,7 +210,7 @@ const Register = () => {
           <h1 className="text-[22px] font-bold text-[#121212]">
             {step === 1 ? "Create Account" : "Store Info"}
           </h1>
-          <p className="text-[13px] text-gray-400 mt-1">Step {step} of 2</p>
+          {/* <p className="text-[13px] text-gray-400 mt-1">Step {step} of 2</p> */}
         </div>
 
         {/* ── Form Container ── */}
@@ -218,41 +218,13 @@ const Register = () => {
           {step === 1 ? (
             <div className="flex flex-col" style={{ gap: "4px" }}>
               <div>
-                <label style={labelStyle}>Username</label>
+                <label style={labelStyle}>Name</label>
                 <input
                   type="text"
                   name="username"
                   value={formData.username}
                   onChange={handleChange}
                   placeholder="Enter username"
-                  style={inputStyle}
-                  onFocus={(e) => (e.target.style.borderColor = "#018784")}
-                  onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
-                />
-              </div>
-
-              <div>
-                <label style={labelStyle}>Email Address</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="Enter email"
-                  style={inputStyle}
-                  onFocus={(e) => (e.target.style.borderColor = "#018784")}
-                  onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
-                />
-              </div>
-
-              <div>
-                <label style={labelStyle}>Physical Address</label>
-                <input
-                  type="text"
-                  name="storeAddress"
-                  value={formData.storeAddress}
-                  onChange={handleChange}
-                  placeholder="Enter complete address"
                   style={inputStyle}
                   onFocus={(e) => (e.target.style.borderColor = "#018784")}
                   onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
@@ -474,6 +446,34 @@ const Register = () => {
               </div>
 
               <div>
+                <label style={labelStyle}>Email Address</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="Enter email"
+                  style={inputStyle}
+                  onFocus={(e) => (e.target.style.borderColor = "#018784")}
+                  onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
+                />
+              </div>
+
+              <div>
+                <label style={labelStyle}>Address</label>
+                <input
+                  type="text"
+                  name="storeAddress"
+                  value={formData.storeAddress}
+                  onChange={handleChange}
+                  placeholder="Enter complete address"
+                  style={inputStyle}
+                  onFocus={(e) => (e.target.style.borderColor = "#018784")}
+                  onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
+                />
+              </div>
+
+              <div>
                 <label style={labelStyle}>Government ID / Passport</label>
                 <div className="grid grid-cols-2 gap-3">
                   {/* Front ID Box */}
@@ -611,6 +611,8 @@ const Register = () => {
                 style={{
                   padding: "12px",
                   borderRadius: "4px",
+                  marginTop: "10px",
+                  marginBottom: "5px",
                   fontSize: "15px",
                   backgroundColor: "#018784",
                   cursor: "pointer",
