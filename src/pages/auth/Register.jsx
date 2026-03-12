@@ -220,7 +220,7 @@ const Register = () => {
         {/* ── Form Container ── */}
         <div className="px-6 pb-12">
           {step === 1 ? (
-            <div className="flex flex-col" style={{ gap: "4px" }}>
+            <div className="flex flex-col" style={{ gap: "6px" }}>
               <div>
                 <label style={labelStyle}>Name</label>
                 <input
