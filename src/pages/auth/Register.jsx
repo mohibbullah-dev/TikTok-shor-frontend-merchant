@@ -150,7 +150,7 @@ const Register = () => {
     <div className="min-h-screen w-full relative flex justify-center bg-gray-100">
       <div
         className="w-full flex flex-col bg-white overflow-x-hidden relative"
-        style={{ maxWidth: "480px", minHeight: "100vh", padding: "40px" }}
+        style={{ maxWidth: "480px", minHeight: "100vh", padding: "4px" }}
       >
         {/* ── Official Top Navigation Bar ── */}
         <div className="flex justify-between items-center px-5 py-4 relative z-20">
