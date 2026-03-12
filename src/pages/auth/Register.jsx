@@ -1321,7 +1321,7 @@ const Register = () => {
             backgroundImage: "url('/bg_image.png')",
             backgroundSize: "cover",
             backgroundPosition: "center",
-            opacity: 1,
+            opacity: 0.5,
             zIndex: 0,
             pointerEvents: "none",
           }}
@@ -1436,11 +1436,11 @@ const Register = () => {
                 className="font-extrabold text-center"
                 style={{
                   fontSize: "20px",
-                  margin: "0 0 20px 0",
+                  margin: "0 0 10px 0",
                   color: "#121212",
                 }}
               >
-                Merchant Details
+                Seller Details
               </h2>
 
               <div className="flex flex-col" style={{ gap: "12px" }}>
