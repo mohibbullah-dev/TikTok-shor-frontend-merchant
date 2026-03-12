@@ -193,6 +193,12 @@ const Register = () => {
                       setLanguage(lang);
                       setShowLangDropdown(false);
                     }}
+                    style={{
+                      paddingLeft: "16px",
+                      paddingRight: "16px",
+                      paddingTop: "8px",
+                      paddingBottom: "8px",
+                    }}
                     className="px-4 py-2 text-[13px] text-gray-700 hover:bg-gray-50 cursor-pointer"
                   >
                     {lang}
