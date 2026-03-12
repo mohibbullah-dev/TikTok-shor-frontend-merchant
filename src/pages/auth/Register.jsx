@@ -1410,7 +1410,7 @@ const Register = () => {
           }}
         >
           <img
-            src="/logo.jfif"
+            src="/logo_2.png"
             alt="TikTok Shop Logo"
             style={{
               width: "80px",
