@@ -708,7 +708,7 @@ const Login = () => {
         <div className="flex justify-between items-center px-5 py-4 relative z-20">
           <div className="flex items-center gap-3">
             <img
-              src="/logo_like_demo.png"
+              src="/demo_logo.png"
               alt="TikTok Shop"
               className="h-6 object-contain"
             />
@@ -1058,14 +1058,14 @@ const Login = () => {
             </div>
 
             {/* Sub-links */}
-            <div className="flex items-center text-[12px] mt-[-6px] gap-10">
+            <div className="flex items-center text-[12px] mt-[-6px] gap-1">
               <Link
                 to="/forgot-password"
                 className="text-gray-500 hover:text-gray-800 transition-colors pr-2 "
               >
                 Forgot the password?
               </Link>
-              <div className="border-gray-300">|</div>
+              <div className="border-gray-100">|</div>
               <span
                 onClick={() =>
                   setAuthMethod(authMethod === "password" ? "code" : "password")
