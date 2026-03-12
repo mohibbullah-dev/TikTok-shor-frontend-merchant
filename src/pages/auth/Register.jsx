@@ -873,7 +873,10 @@ const Register = () => {
             </form>
           )}
 
-          <div className="flex items-center justify-center mt-6 text-[13px] text-gray-500">
+          <div
+            style={{ marginTop: "16px" }}
+            className="flex items-center justify-center mt-6 text-[13px] text-gray-500"
+          >
             Already have an account?{" "}
             <Link
               to="/login"

@@ -708,14 +708,14 @@ const Login = () => {
         <div className="flex justify-between items-center px-5 py-4 relative z-20">
           <div className="flex items-center gap-3">
             <img
-              src="/logo_like_demo.jpg"
+              src="/logo_like_demo.png"
               alt="TikTok Shop"
               className="h-6 object-contain"
             />
             <div className="w-[1px] h-4 bg-gray-300"></div>
-            <span className="text-[15px] font-semibold text-[#121212] tracking-tight">
+            {/* <span className="text-[15px] font-semibold text-[#121212] tracking-tight">
               Seller Center
-            </span>
+            </span> */}
           </div>
 
           <div className="relative">
@@ -750,7 +750,7 @@ const Login = () => {
         {/* ── Centered Hero Illustration ── */}
         <div className="flex flex-col items-center justify-center mt-10 mb-8">
           <img
-            src="/hero_image_like_demo.jpg"
+            src="/hero_image_like_demo.png"
             alt="Hero Illustration"
             className="w-40 h-40 object-contain mb-4"
           />
@@ -774,7 +774,7 @@ const Login = () => {
                   onClick={() =>
                     setLoginMethod(loginMethod === "phone" ? "email" : "phone")
                   }
-                  style={{ marginBottom: "50px" }}
+                  style={{ marginBottom: "20px" }}
                   className="text-[14px] text-[#018784] font-medium cursor-pointer"
                 >
                   {loginMethod === "phone"
@@ -1104,8 +1104,8 @@ const Login = () => {
 
           {/* ── Sign Up Link ── */}
           <div
-            style={{ marginTop: "24px" }}
-            className="flex items-center justify-center mt-6 text-[13px] text-gray-500"
+            style={{ marginTop: "16px" }}
+            className="flex items-center justify-center mt-6 text-[13px] gap-1 text-gray-500"
           >
             Don't have an account yet?{" "}
             <Link
