@@ -6,7 +6,8 @@ import API from "../../api/axios";
 import {
   Eye,
   EyeOff,
-  ArrowLeft,
+  // ArrowLeft,
+  ChevronDown,
   Loader2,
   FileImage,
   ClipboardCheck,
@@ -155,7 +156,7 @@ const Register = () => {
         <div className="flex justify-between items-center px-5 py-4 relative z-20">
           <div className="flex items-center">
             {step === 2 && (
-              <ArrowLeft
+              <ChevronDown
                 size={20}
                 className="mr-3 cursor-pointer text-gray-800 hover:text-gray-600"
                 onClick={() => setStep(1)}
@@ -165,7 +166,7 @@ const Register = () => {
             <img
               src="/logo_like_demo.png"
               alt="TikTok Shop"
-              className="h-6 object-contain" // Adjusted height to match demo top bar
+              className="h-20 object-contain" // Adjusted height to match demo top bar
             />
           </div>
 
