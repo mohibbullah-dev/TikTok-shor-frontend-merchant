@@ -212,7 +212,7 @@ const Register = () => {
             className="w-48 h-48 object-contain mb-2" // Slightly larger to match the demo's visual weight
           />
           <h1 className="text-[22px] font-bold text-[#121212]">
-            {step === 1 ? "Create Account" : "Store Info"}
+            {step === 1 ? "Create Seller Account" : "Store Info"}
           </h1>
           {/* <p className="text-[13px] text-gray-400 mt-1">Step {step} of 2</p> */}
         </div>
