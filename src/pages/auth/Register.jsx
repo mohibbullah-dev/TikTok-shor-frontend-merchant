@@ -9,9 +9,13 @@ import {
   ArrowLeft,
   ChevronDown,
   Loader2,
-  FileImage,
+  // FileImage,
   ClipboardCheck,
   CheckCircle2,
+  Upload,
+  Check,
+  CreditCard,
+  ScanLine,
 } from "lucide-react";
 
 const Register = () => {
@@ -224,7 +228,7 @@ const Register = () => {
                   name="username"
                   value={formData.username}
                   onChange={handleChange}
-                  placeholder="Enter username"
+                  placeholder="Enter N"
                   style={inputStyle}
                   onFocus={(e) => (e.target.style.borderColor = "#018784")}
                   onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
@@ -466,7 +470,7 @@ const Register = () => {
                   name="storeAddress"
                   value={formData.storeAddress}
                   onChange={handleChange}
-                  placeholder="Enter complete address"
+                  placeholder="e.g. 123 Main St, New York, NY 10001, USA"
                   style={inputStyle}
                   onFocus={(e) => (e.target.style.borderColor = "#018784")}
                   onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
@@ -477,27 +481,88 @@ const Register = () => {
                 <label style={labelStyle}>Government ID / Passport</label>
                 <div className="grid grid-cols-2 gap-3">
                   {/* Front ID Box */}
-                  <div className="relative h-24 bg-[#f9fafb] border border-dashed border-[#d1d5db] rounded-[6px] overflow-hidden flex flex-col items-center justify-center hover:bg-gray-50 transition-colors group">
+                  <div
+                    className="relative group overflow-hidden"
+                    style={{
+                      height: "100px",
+                      borderRadius: "10px",
+                      border: previewFront
+                        ? "2px solid #018784"
+                        : "2px dashed #d1d5db",
+                      backgroundColor: previewFront ? "#000" : "#f9fafb",
+                      transition: "all 0.2s",
+                      boxShadow: previewFront
+                        ? "0 2px 8px rgba(1,135,132,0.15)"
+                        : "0 1px 3px rgba(0,0,0,0.05)",
+                    }}
+                  >
                     {previewFront ? (
                       <>
                         <img
                           src={previewFront}
                           alt="Front ID"
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover opacity-90"
                         />
-                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                          <span className="text-white text-[11px] font-bold">
-                            Change
+                        {/* Hover overlay */}
+                        <div
+                          className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
+                          style={{ backgroundColor: "rgba(0,0,0,0.55)" }}
+                        >
+                          <Upload size={18} color="#fff" />
+                          <span
+                            style={{
+                              color: "#fff",
+                              fontSize: "10px",
+                              fontWeight: "700",
+                              marginTop: "4px",
+                              letterSpacing: "0.5px",
+                            }}
+                          >
+                            CHANGE
                           </span>
+                        </div>
+                        {/* Green check badge */}
+                        <div
+                          className="absolute top-1.5 right-1.5 flex items-center justify-center"
+                          style={{
+                            width: "18px",
+                            height: "18px",
+                            borderRadius: "50%",
+                            backgroundColor: "#018784",
+                          }}
+                        >
+                          <Check size={11} color="#fff" strokeWidth={3} />
                         </div>
                       </>
                     ) : (
-                      <>
-                        <FileImage size={20} className="text-gray-400 mb-1" />
-                        <span className="text-[11px] text-gray-500 font-medium">
+                      <div className="flex flex-col items-center justify-center h-full gap-1 group-hover:scale-105 transition-transform">
+                        <div
+                          style={{
+                            width: "36px",
+                            height: "36px",
+                            borderRadius: "50%",
+                            backgroundColor: "rgba(1,135,132,0.08)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <CreditCard size={18} style={{ color: "#018784" }} />
+                        </div>
+                        <span
+                          style={{
+                            fontSize: "11px",
+                            fontWeight: "700",
+                            color: "#374151",
+                            marginTop: "2px",
+                          }}
+                        >
                           Front Side
                         </span>
-                      </>
+                        <span style={{ fontSize: "10px", color: "#9ca3af" }}>
+                          Tap to upload
+                        </span>
+                      </div>
                     )}
                     <input
                       type="file"
@@ -509,27 +574,88 @@ const Register = () => {
                   </div>
 
                   {/* Back ID Box */}
-                  <div className="relative h-24 bg-[#f9fafb] border border-dashed border-[#d1d5db] rounded-[6px] overflow-hidden flex flex-col items-center justify-center hover:bg-gray-50 transition-colors group">
+                  <div
+                    className="relative group overflow-hidden"
+                    style={{
+                      height: "100px",
+                      borderRadius: "10px",
+                      border: previewBack
+                        ? "2px solid #018784"
+                        : "2px dashed #d1d5db",
+                      backgroundColor: previewBack ? "#000" : "#f9fafb",
+                      transition: "all 0.2s",
+                      boxShadow: previewBack
+                        ? "0 2px 8px rgba(1,135,132,0.15)"
+                        : "0 1px 3px rgba(0,0,0,0.05)",
+                    }}
+                  >
                     {previewBack ? (
                       <>
                         <img
                           src={previewBack}
                           alt="Back ID"
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover opacity-90"
                         />
-                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                          <span className="text-white text-[11px] font-bold">
-                            Change
+                        {/* Hover overlay */}
+                        <div
+                          className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
+                          style={{ backgroundColor: "rgba(0,0,0,0.55)" }}
+                        >
+                          <Upload size={18} color="#fff" />
+                          <span
+                            style={{
+                              color: "#fff",
+                              fontSize: "10px",
+                              fontWeight: "700",
+                              marginTop: "4px",
+                              letterSpacing: "0.5px",
+                            }}
+                          >
+                            CHANGE
                           </span>
+                        </div>
+                        {/* Green check badge */}
+                        <div
+                          className="absolute top-1.5 right-1.5 flex items-center justify-center"
+                          style={{
+                            width: "18px",
+                            height: "18px",
+                            borderRadius: "50%",
+                            backgroundColor: "#018784",
+                          }}
+                        >
+                          <Check size={11} color="#fff" strokeWidth={3} />
                         </div>
                       </>
                     ) : (
-                      <>
-                        <FileImage size={20} className="text-gray-400 mb-1" />
-                        <span className="text-[11px] text-gray-500 font-medium">
+                      <div className="flex flex-col items-center justify-center h-full gap-1 group-hover:scale-105 transition-transform">
+                        <div
+                          style={{
+                            width: "36px",
+                            height: "36px",
+                            borderRadius: "50%",
+                            backgroundColor: "rgba(1,135,132,0.08)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <ScanLine size={18} style={{ color: "#018784" }} />
+                        </div>
+                        <span
+                          style={{
+                            fontSize: "11px",
+                            fontWeight: "700",
+                            color: "#374151",
+                            marginTop: "2px",
+                          }}
+                        >
                           Back Side
                         </span>
-                      </>
+                        <span style={{ fontSize: "10px", color: "#9ca3af" }}>
+                          Tap to upload
+                        </span>
+                      </div>
                     )}
                     <input
                       type="file"
@@ -540,8 +666,18 @@ const Register = () => {
                     />
                   </div>
                 </div>
+                {/* Helper text */}
+                <p
+                  style={{
+                    fontSize: "10px",
+                    color: "#9ca3af",
+                    marginTop: "6px",
+                    textAlign: "center",
+                  }}
+                >
+                  📎 JPG, PNG or WEBP · Max 5MB each
+                </p>
               </div>
-
               <div>
                 <label style={labelStyle}>Password</label>
                 <div className="relative">
