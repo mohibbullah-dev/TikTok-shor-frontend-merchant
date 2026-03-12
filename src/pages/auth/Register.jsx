@@ -164,7 +164,7 @@ const Register = () => {
             )}
             {/* ✅ NEW: Using the exact uploaded logo image */}
             <img
-              src="/logo_like_demo.png"
+              src="/demo_logo.png"
               alt="TikTok Shop"
               className="h-50 object-contain" // Adjusted height to match demo top bar
             />
