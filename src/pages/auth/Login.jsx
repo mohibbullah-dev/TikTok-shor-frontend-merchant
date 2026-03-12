@@ -230,32 +230,368 @@
 // export default Login;
 
 /////////////////=========================== latest version (by gemeni) =======================///////////////
+// import { useState } from "react";
+// import { useNavigate, Link } from "react-router-dom";
+// import { useDispatch } from "react-redux";
+// import { toast } from "react-toastify";
+// import { loginSuccess } from "../../store/authSlice";
+// import API from "../../api/axios";
+// import {
+//   ShoppingBag,
+//   Mail,
+//   Lock,
+//   Eye,
+//   EyeOff,
+//   Loader2,
+//   KeyRound,
+// } from "lucide-react";
+
+// const Login = () => {
+//   const navigate = useNavigate();
+//   const dispatch = useDispatch();
+
+//   const [formData, setFormData] = useState({
+//     email: "",
+//     password: "",
+//   });
+//   const [loading, setLoading] = useState(false);
+//   const [showPassword, setShowPassword] = useState(false);
+
+//   const handleChange = (e) => {
+//     setFormData({ ...formData, [e.target.name]: e.target.value });
+//   };
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+
+//     if (!formData.email || !formData.password) {
+//       toast.error("Please fill in all fields");
+//       return;
+//     }
+
+//     setLoading(true);
+//     try {
+//       const { data } = await API.post("/auth/login", formData);
+
+//       if (data?.user?.role !== "merchant") {
+//         toast.error("This app is for merchants only");
+//         setLoading(false);
+//         return;
+//       }
+
+//       dispatch(
+//         loginSuccess({
+//           user: {
+//             _id: data?.user?._id,
+//             username: data?.user?.username,
+//             email: data?.user?.email,
+//             role: data?.user?.role,
+//             avatar: data?.user?.avatar,
+//             nickname: data?.user?.nickname,
+//           },
+//           token: data?.token,
+//           merchant: {
+//             // ✅ correctly mapped
+//             merchantId: data?.user?.merchantId,
+//             storeName: data?.user?.storeName,
+//             storeLogo: data?.user?.storeLogo,
+//             balance: data?.user?.balance,
+//             vipLevel: data?.user?.vipLevel,
+//             status: data?.user?.status,
+//           },
+//         }),
+//       );
+
+//       toast.success("Welcome back!");
+//       navigate("/");
+//     } catch (error) {
+//       toast.error(error.response?.data?.message || "Login failed");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   return (
+//     <div
+//       className="min-h-screen flex flex-col bg-gray-50 relative"
+//       style={{ margin: "0 auto", maxWidth: "620px" }}
+//     >
+//       {/* ── Top Header / Logo Section ── */}
+//       <div
+//         className="flex flex-col items-center justify-center text-white"
+//         style={{
+//           background: "linear-gradient(135deg, #f02d65 0%, #ff6b35 100%)",
+//           padding: "60px 20px 40px 20px",
+//         }}
+//       >
+//         <div
+//           className="bg-white rounded-full flex items-center justify-center shadow-lg"
+//           style={{ width: "80px", height: "80px", marginBottom: "16px" }}
+//         >
+//           <ShoppingBag size={36} color="#f02d65" />
+//         </div>
+//         <h1
+//           className="font-bold tracking-wide"
+//           style={{ fontSize: "24px", margin: 0 }}
+//         >
+//           TikTok Shop
+//         </h1>
+//         <p
+//           className="opacity-90"
+//           style={{ fontSize: "14px", marginTop: "4px", margin: 0 }}
+//         >
+//           Merchant Center
+//         </p>
+//       </div>
+
+//       {/* ── White Card ── */}
+//       <div
+//         className="bg-white flex-1 flex flex-col"
+//         style={{
+//           padding: "32px 24px",
+//           marginTop: "-20px",
+//           borderTopLeftRadius: "24px",
+//           borderTopRightRadius: "24px",
+//           boxShadow: "0 -4px 20px rgba(0,0,0,0.05)",
+//         }}
+//       >
+//         <h2
+//           className="text-gray-800 font-bold"
+//           style={{ fontSize: "22px", margin: "0 0 4px 0" }}
+//         >
+//           Welcome Back 👋
+//         </h2>
+//         <p
+//           className="text-gray-400"
+//           style={{
+//             fontSize: "14px",
+//             marginBottom: "32px",
+//             margin: "0 0 32px 0",
+//           }}
+//         >
+//           Sign in to your merchant account
+//         </p>
+
+//         <form
+//           onSubmit={handleSubmit}
+//           className="flex flex-col"
+//           style={{ gap: "20px" }}
+//         >
+//           {/* Email Field */}
+//           <div>
+//             <label
+//               className="text-gray-600 font-medium block"
+//               style={{ fontSize: "13px", marginBottom: "8px" }}
+//             >
+//               Email Address
+//             </label>
+//             <div className="relative">
+//               <Mail
+//                 size={18}
+//                 className="text-gray-400 absolute top-1/2 -translate-y-1/2"
+//                 style={{ left: "16px" }}
+//               />
+//               <input
+//                 type="email"
+//                 name="email"
+//                 value={formData.email}
+//                 onChange={handleChange}
+//                 placeholder="Enter your email"
+//                 className="w-full bg-gray-50 border border-gray-200 text-gray-800 outline-none transition-all"
+//                 style={{
+//                   padding: "14px 14px 14px 44px",
+//                   borderRadius: "12px",
+//                   fontSize: "14px",
+//                 }}
+//                 onFocus={(e) => {
+//                   e.target.style.borderColor = "#ff6b35";
+//                   e.target.style.backgroundColor = "#fff";
+//                 }}
+//                 onBlur={(e) => {
+//                   e.target.style.borderColor = "#e5e7eb";
+//                   e.target.style.backgroundColor = "#f9fafb";
+//                 }}
+//               />
+//             </div>
+//           </div>
+
+//           {/* Password Field */}
+//           <div>
+//             <label
+//               className="text-gray-600 font-medium block"
+//               style={{ fontSize: "13px", marginBottom: "8px" }}
+//             >
+//               Password
+//             </label>
+//             <div className="relative">
+//               <Lock
+//                 size={18}
+//                 className="text-gray-400 absolute top-1/2 -translate-y-1/2"
+//                 style={{ left: "16px" }}
+//               />
+//               <input
+//                 type={showPassword ? "text" : "password"}
+//                 name="password"
+//                 value={formData.password}
+//                 onChange={handleChange}
+//                 placeholder="Enter your password"
+//                 className="w-full bg-gray-50 border border-gray-200 text-gray-800 outline-none transition-all"
+//                 style={{
+//                   padding: "14px 44px 14px 44px",
+//                   borderRadius: "12px",
+//                   fontSize: "14px",
+//                 }}
+//                 onFocus={(e) => {
+//                   e.target.style.borderColor = "#ff6b35";
+//                   e.target.style.backgroundColor = "#fff";
+//                 }}
+//                 onBlur={(e) => {
+//                   e.target.style.borderColor = "#e5e7eb";
+//                   e.target.style.backgroundColor = "#f9fafb";
+//                 }}
+//               />
+//               <button
+//                 type="button"
+//                 onClick={() => setShowPassword(!showPassword)}
+//                 className="absolute top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer"
+//                 style={{ right: "16px", padding: 0 }}
+//               >
+//                 {showPassword ? (
+//                   <EyeOff size={18} color="#9ca3af" />
+//                 ) : (
+//                   <Eye size={18} color="#9ca3af" />
+//                 )}
+//               </button>
+//             </div>
+//             {/* ✅ NEW: Forgot Password Link */}
+//             <div className="flex justify-end" style={{ marginTop: "10px" }}>
+//               <Link
+//                 to="/forgot-password"
+//                 className="font-bold hover:opacity-80 transition-opacity"
+//                 style={{
+//                   fontSize: "13px",
+//                   color: "#f02d65",
+//                   textDecoration: "none",
+//                 }}
+//               >
+//                 Forgot Password?
+//               </Link>
+//             </div>
+//           </div>
+
+//           {/* Login Button */}
+//           <button
+//             type="submit"
+//             disabled={loading}
+//             className="w-full text-white font-bold border-none flex items-center justify-center transition-transform"
+//             style={{
+//               padding: "16px",
+//               marginTop: "4px",
+//               borderRadius: "12px",
+//               fontSize: "15px",
+//               boxShadow: "0 4px 14px rgba(255, 107, 53, 0.3)",
+//               cursor: loading ? "not-allowed" : "pointer",
+//               background: loading
+//                 ? "#d1d5db"
+//                 : "linear-gradient(135deg, #f02d65 0%, #ff6b35 100%)",
+//               gap: "8px",
+//             }}
+//             onMouseDown={(e) =>
+//               (e.currentTarget.style.transform = "scale(0.98)")
+//             }
+//             onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
+//           >
+//             {loading ? (
+//               <>
+//                 <Loader2 size={18} className="animate-spin" /> Signing in...
+//               </>
+//             ) : (
+//               "LOGIN"
+//             )}
+//           </button>
+
+//           {/* Divider */}
+//           <div
+//             className="flex items-center"
+//             style={{ gap: "12px", marginTop: "12px", marginBottom: "12px" }}
+//           >
+//             <div className="flex-1 bg-gray-100" style={{ height: "1px" }} />
+//             <span
+//               className="text-gray-300 font-bold"
+//               style={{ fontSize: "12px" }}
+//             >
+//               OR
+//             </span>
+//             <div className="flex-1 bg-gray-100" style={{ height: "1px" }} />
+//           </div>
+
+//           {/* Register Link */}
+//           <p
+//             className="text-center text-gray-500"
+//             style={{ fontSize: "14px", margin: 0 }}
+//           >
+//             Don't have an account?{" "}
+//             <Link
+//               to="/register"
+//               className="font-bold"
+//               style={{ color: "#f02d65", textDecoration: "none" }}
+//             >
+//               Register Now
+//             </Link>
+//           </p>
+//         </form>
+
+//         {/* Demo Hint */}
+//         <div
+//           className="flex items-center justify-center bg-orange-50 border border-orange-100 border-dashed"
+//           style={{
+//             marginTop: "32px",
+//             padding: "12px",
+//             borderRadius: "12px",
+//             gap: "8px",
+//           }}
+//         >
+//           <KeyRound size={14} className="text-orange-500" />
+//           <p
+//             className="text-orange-500 font-medium"
+//             style={{ fontSize: "12px", margin: 0 }}
+//           >
+//             Need an invitation code to register
+//           </p>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Login;
+
+///////////////////// ==================== latest version (by gemeni) =======================//////////////////////
+
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { loginSuccess } from "../../store/authSlice";
 import API from "../../api/axios";
-import {
-  ShoppingBag,
-  Mail,
-  Lock,
-  Eye,
-  EyeOff,
-  Loader2,
-  KeyRound,
-} from "lucide-react";
+import { Eye, EyeOff, Loader2, ChevronDown } from "lucide-react";
 
 const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  // 🛑 FUNCTIONALITY UNTOUCHED
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  // ✅ Added Language State (Visual only, matches Register)
+  const [language, setLanguage] = useState("US English");
+  const [showLangDropdown, setShowLangDropdown] = useState(false);
+  const languages = ["US English", "Bangla", "Hindi"];
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -291,7 +627,6 @@ const Login = () => {
           },
           token: data?.token,
           merchant: {
-            // ✅ correctly mapped
             merchantId: data?.user?.merchantId,
             storeName: data?.user?.storeName,
             storeLogo: data?.user?.storeLogo,
@@ -311,253 +646,193 @@ const Login = () => {
     }
   };
 
+  // 🎨 UI CSS Variables (Exactly matching Register.jsx)
+  const inputStyle = {
+    width: "100%",
+    padding: "12px 14px",
+    backgroundColor: "#ffffff",
+    border: "1px solid #e5e7eb",
+    borderRadius: "4px",
+    fontSize: "14px",
+    color: "#121212",
+    outline: "none",
+    transition: "border-color 0.2s",
+  };
+
+  const labelStyle = {
+    color: "#4b5563",
+    fontSize: "13px",
+    fontWeight: "500",
+    marginBottom: "6px",
+    display: "block",
+  };
+
   return (
-    <div
-      className="min-h-screen flex flex-col bg-gray-50 relative"
-      style={{ margin: "0 auto", maxWidth: "620px" }}
-    >
-      {/* ── Top Header / Logo Section ── */}
+    // ── Outer Desktop Wrapper ──
+    <div className="min-h-screen w-full relative flex justify-center bg-gray-100">
+      {/* ── Inner Mobile App Container ── */}
       <div
-        className="flex flex-col items-center justify-center text-white"
-        style={{
-          background: "linear-gradient(135deg, #f02d65 0%, #ff6b35 100%)",
-          padding: "60px 20px 40px 20px",
-        }}
+        className="w-full flex flex-col bg-white overflow-x-hidden relative"
+        style={{ maxWidth: "480px", minHeight: "100vh", padding: "18px" }}
       >
-        <div
-          className="bg-white rounded-full flex items-center justify-center shadow-lg"
-          style={{ width: "80px", height: "80px", marginBottom: "16px" }}
-        >
-          <ShoppingBag size={36} color="#f02d65" />
-        </div>
-        <h1
-          className="font-bold tracking-wide"
-          style={{ fontSize: "24px", margin: 0 }}
-        >
-          TikTok Shop
-        </h1>
-        <p
-          className="opacity-90"
-          style={{ fontSize: "14px", marginTop: "4px", margin: 0 }}
-        >
-          Merchant Center
-        </p>
-      </div>
+        {/* ── Official Top Navigation Bar ── */}
+        <div className="flex justify-between items-center px-5 py-4 relative z-20">
+          <div className="flex items-center">
+            {/* Same logo used in Register page */}
+            <img
+              src="/demo_logo.png"
+              alt="TikTok Shop"
+              className="h-10 object-contain"
+            />
+          </div>
 
-      {/* ── White Card ── */}
-      <div
-        className="bg-white flex-1 flex flex-col"
-        style={{
-          padding: "32px 24px",
-          marginTop: "-20px",
-          borderTopLeftRadius: "24px",
-          borderTopRightRadius: "24px",
-          boxShadow: "0 -4px 20px rgba(0,0,0,0.05)",
-        }}
-      >
-        <h2
-          className="text-gray-800 font-bold"
-          style={{ fontSize: "22px", margin: "0 0 4px 0" }}
-        >
-          Welcome Back 👋
-        </h2>
-        <p
-          className="text-gray-400"
-          style={{
-            fontSize: "14px",
-            marginBottom: "32px",
-            margin: "0 0 32px 0",
-          }}
-        >
-          Sign in to your merchant account
-        </p>
-
-        <form
-          onSubmit={handleSubmit}
-          className="flex flex-col"
-          style={{ gap: "20px" }}
-        >
-          {/* Email Field */}
-          <div>
-            <label
-              className="text-gray-600 font-medium block"
-              style={{ fontSize: "13px", marginBottom: "8px" }}
+          <div className="relative">
+            <div
+              className="text-[13px] text-[#018784] font-medium cursor-pointer flex items-center gap-1"
+              onClick={() => setShowLangDropdown(!showLangDropdown)}
             >
-              Email Address
-            </label>
-            <div className="relative">
-              <Mail
-                size={18}
-                className="text-gray-400 absolute top-1/2 -translate-y-1/2"
-                style={{ left: "16px" }}
-              />
+              {language}{" "}
+              <span className="text-[9px]">
+                <ChevronDown />
+              </span>
+            </div>
+            {showLangDropdown && (
+              <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-100 shadow-lg rounded-md overflow-hidden z-50">
+                {languages.map((lang) => (
+                  <div
+                    key={lang}
+                    onClick={() => {
+                      setLanguage(lang);
+                      setShowLangDropdown(false);
+                    }}
+                    className="px-4 py-2 text-[13px] text-gray-700 hover:bg-gray-50 cursor-pointer"
+                  >
+                    {lang}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── Centered Hero Illustration ── */}
+        <div className="flex flex-col items-center justify-center mt-6 mb-8">
+          <img
+            src="/hero_image_like_demo.png"
+            alt="Hero Illustration"
+            className="w-48 h-48 object-contain mb-4"
+          />
+          <h1 className="text-[22px] font-bold text-[#121212]">Log in</h1>
+        </div>
+
+        {/* ── Form Container ── */}
+        <div className="px-6 pb-12">
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-col"
+            style={{ gap: "18px" }}
+          >
+            {/* Email Field */}
+            <div>
+              <div className="flex justify-between items-end mb-1.5">
+                <label style={{ ...labelStyle, marginBottom: 0 }}>
+                  Email Address
+                </label>
+                {/* Visual link matching the screenshot's layout */}
+                <span className="text-[12px] text-[#018784] font-medium cursor-pointer">
+                  Log in with phone
+                </span>
+              </div>
               <input
                 type="email"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="Enter your email"
-                className="w-full bg-gray-50 border border-gray-200 text-gray-800 outline-none transition-all"
-                style={{
-                  padding: "14px 14px 14px 44px",
-                  borderRadius: "12px",
-                  fontSize: "14px",
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = "#ff6b35";
-                  e.target.style.backgroundColor = "#fff";
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = "#e5e7eb";
-                  e.target.style.backgroundColor = "#f9fafb";
-                }}
+                style={inputStyle}
+                onFocus={(e) => (e.target.style.borderColor = "#018784")}
+                onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
               />
             </div>
-          </div>
 
-          {/* Password Field */}
-          <div>
-            <label
-              className="text-gray-600 font-medium block"
-              style={{ fontSize: "13px", marginBottom: "8px" }}
-            >
-              Password
-            </label>
-            <div className="relative">
-              <Lock
-                size={18}
-                className="text-gray-400 absolute top-1/2 -translate-y-1/2"
-                style={{ left: "16px" }}
-              />
-              <input
-                type={showPassword ? "text" : "password"}
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Enter your password"
-                className="w-full bg-gray-50 border border-gray-200 text-gray-800 outline-none transition-all"
-                style={{
-                  padding: "14px 44px 14px 44px",
-                  borderRadius: "12px",
-                  fontSize: "14px",
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = "#ff6b35";
-                  e.target.style.backgroundColor = "#fff";
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = "#e5e7eb";
-                  e.target.style.backgroundColor = "#f9fafb";
-                }}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer"
-                style={{ right: "16px", padding: 0 }}
-              >
-                {showPassword ? (
-                  <EyeOff size={18} color="#9ca3af" />
-                ) : (
-                  <Eye size={18} color="#9ca3af" />
-                )}
-              </button>
+            {/* Password Field */}
+            <div>
+              <label style={labelStyle}>Password</label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Enter your password"
+                  style={{ ...inputStyle, paddingRight: "40px" }}
+                  onFocus={(e) => (e.target.style.borderColor = "#018784")}
+                  onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute bg-transparent border-none cursor-pointer text-gray-400"
+                  style={{
+                    right: "12px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    padding: 0,
+                  }}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
             </div>
-            {/* ✅ NEW: Forgot Password Link */}
-            <div className="flex justify-end" style={{ marginTop: "10px" }}>
+
+            {/* Sub-links (Forgot password / Login with Code) */}
+            <div className="flex items-center text-[12px] mt-[-6px]">
               <Link
                 to="/forgot-password"
-                className="font-bold hover:opacity-80 transition-opacity"
-                style={{
-                  fontSize: "13px",
-                  color: "#f02d65",
-                  textDecoration: "none",
-                }}
+                className="text-gray-500 hover:text-gray-800 transition-colors pr-2 border-r border-gray-300"
               >
-                Forgot Password?
+                Forgot the password?
               </Link>
+              <span className="text-gray-500 pl-2 cursor-pointer hover:text-gray-800 transition-colors">
+                Log in with Code
+              </span>
             </div>
-          </div>
 
-          {/* Login Button */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full text-white font-bold border-none flex items-center justify-center transition-transform"
-            style={{
-              padding: "16px",
-              marginTop: "4px",
-              borderRadius: "12px",
-              fontSize: "15px",
-              boxShadow: "0 4px 14px rgba(255, 107, 53, 0.3)",
-              cursor: loading ? "not-allowed" : "pointer",
-              background: loading
-                ? "#d1d5db"
-                : "linear-gradient(135deg, #f02d65 0%, #ff6b35 100%)",
-              gap: "8px",
-            }}
-            onMouseDown={(e) =>
-              (e.currentTarget.style.transform = "scale(0.98)")
-            }
-            onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
-          >
-            {loading ? (
-              <>
-                <Loader2 size={18} className="animate-spin" /> Signing in...
-              </>
-            ) : (
-              "LOGIN"
-            )}
-          </button>
-
-          {/* Divider */}
-          <div
-            className="flex items-center"
-            style={{ gap: "12px", marginTop: "12px", marginBottom: "12px" }}
-          >
-            <div className="flex-1 bg-gray-100" style={{ height: "1px" }} />
-            <span
-              className="text-gray-300 font-bold"
-              style={{ fontSize: "12px" }}
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full text-white font-semibold border-none flex items-center justify-center transition-opacity mt-4"
+              style={{
+                padding: "12px",
+                borderRadius: "4px",
+                fontSize: "15px",
+                backgroundColor: loading ? "#d1d5db" : "#018784", // Official TikTok Teal
+                cursor: loading ? "not-allowed" : "pointer",
+                gap: "8px",
+              }}
             >
-              OR
-            </span>
-            <div className="flex-1 bg-gray-100" style={{ height: "1px" }} />
-          </div>
+              {loading ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" /> Logging in...
+                </>
+              ) : (
+                "Log in"
+              )}
+            </button>
+          </form>
 
-          {/* Register Link */}
-          <p
-            className="text-center text-gray-500"
-            style={{ fontSize: "14px", margin: 0 }}
-          >
-            Don't have an account?{" "}
+          {/* ── Sign Up Link ── */}
+          <div className="flex items-center justify-center mt-6 text-[13px] text-gray-500">
+            Don't have an account yet?{" "}
             <Link
               to="/register"
-              className="font-bold"
-              style={{ color: "#f02d65", textDecoration: "none" }}
+              className="font-medium ml-1"
+              style={{ color: "#018784", textDecoration: "none" }}
             >
-              Register Now
+              Sign up
             </Link>
-          </p>
-        </form>
-
-        {/* Demo Hint */}
-        <div
-          className="flex items-center justify-center bg-orange-50 border border-orange-100 border-dashed"
-          style={{
-            marginTop: "32px",
-            padding: "12px",
-            borderRadius: "12px",
-            gap: "8px",
-          }}
-        >
-          <KeyRound size={14} className="text-orange-500" />
-          <p
-            className="text-orange-500 font-medium"
-            style={{ fontSize: "12px", margin: 0 }}
-          >
-            Need an invitation code to register
-          </p>
+          </div>
         </div>
       </div>
     </div>
