@@ -587,6 +587,7 @@ const Login = () => {
   });
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [countryCode, setCountryCode] = useState("+86");
 
   // ✅ Added Language State (Visual only, matches Register)
   const [language, setLanguage] = useState("US English");
