@@ -1387,9 +1387,9 @@ const Register = () => {
               <p
                 style={{
                   color: "#018784",
-                  fontSize: "16px",
+                  fontSize: "14px",
                   fontWeight: "700",
-                  margin: "2px 0 0 0",
+                  margin: "1px 0 0 0",
                 }}
               >
                 Step {step} of 2
