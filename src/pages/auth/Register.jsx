@@ -1307,7 +1307,12 @@ const Register = () => {
       {/* ── Inner Mobile App Container (Max 480px) ── */}
       <div
         className="w-full flex flex-col relative bg-white shadow-2xl overflow-hidden"
-        style={{ maxWidth: "480px", minHeight: "100vh" }}
+        style={{
+          maxWidth: "480px",
+          minHeight: "100vh",
+          margin: "0px",
+          padding: "0px",
+        }}
       >
         {/* ✅ TRAPPED BACKGROUND: Now the background image is strictly inside the 480px app area! */}
         <div
@@ -1320,7 +1325,8 @@ const Register = () => {
             backgroundImage: "url('/bg_image.png')", // Ensure image is loaded here
             backgroundSize: "cover",
             backgroundPosition: "center",
-            opacity: 0.15, // Perfect watermark opacity
+            // opacity: 0.15, // Perfect watermark opacity
+            opacity: 1,
             zIndex: 0,
             pointerEvents: "none",
           }}
