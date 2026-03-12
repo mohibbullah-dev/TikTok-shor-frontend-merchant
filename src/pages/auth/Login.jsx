@@ -710,7 +710,7 @@ const Login = () => {
             <img
               src="/demo_logo.png"
               alt="TikTok Shop"
-              className="h-6 object-contain"
+              className="h-10 object-contain"
             />
             <div className="w-[1px] h-4 bg-gray-300"></div>
             {/* <span className="text-[15px] font-semibold text-[#121212] tracking-tight">
@@ -729,7 +729,7 @@ const Login = () => {
               </span>
             </div>
             {showLangDropdown && (
-              <div className="absolute right-0 mt-2 w-32 p-2 bg-white border border-gray-100 shadow-lg rounded-md overflow-hidden z-50">
+              <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-100 shadow-lg rounded-md overflow-hidden z-50">
                 {languages.map((lang) => (
                   <div
                     key={lang}
@@ -737,7 +737,13 @@ const Login = () => {
                       setLanguage(lang);
                       setShowLangDropdown(false);
                     }}
-                    className="px-4 py-2 text-[13px] text-gray-700 hover:bg-gray-50 cursor-pointer"
+                    style={{
+                      paddingLeft: "16px",
+                      paddingRight: "16px",
+                      paddingTop: "8px",
+                      paddingBottom: "8px",
+                    }}
+                    className="px-4 py-2 text-[13px] text-gray-700 hover:bg-gray-100 cursor-pointer"
                   >
                     {lang}
                   </div>
