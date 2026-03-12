@@ -1208,12 +1208,10 @@ const Register = () => {
     }
   }, [searchParams]);
 
-  // Standard text input handler
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Handler specifically for files
   const handleFileChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.files[0] });
   };
@@ -1273,13 +1271,13 @@ const Register = () => {
     }
   };
 
-  // 🎨 UI CSS Variables (TIGHTENED FOR MOBILE)
+  // 🎨 UI CSS Variables
   const inputStyle = {
     width: "100%",
-    padding: "12px 14px 12px 42px", // Slightly reduced top/bottom padding
-    backgroundColor: "#f9fafb",
-    border: "1px solid #e5e7eb",
-    borderRadius: "10px", // Slightly softer corners for mobile
+    padding: "12px 14px 12px 42px",
+    backgroundColor: "rgba(255,255,255,0.85)", // ✅ Semi-transparent so bg image shows
+    border: "1px solid rgba(229,231,235,0.8)",
+    borderRadius: "10px",
     fontSize: "14px",
     color: "#121212",
     outline: "none",
@@ -1295,16 +1293,14 @@ const Register = () => {
 
   const labelStyle = {
     color: "#121212",
-    fontSize: "12px", // Slightly smaller label
+    fontSize: "12px",
     fontWeight: "700",
-    marginBottom: "4px", // Tighter margin between label and input
+    marginBottom: "4px",
     display: "block",
   };
 
   return (
-    // ── Outer Desktop Wrapper (Light Gray Background) ──
     <div className="min-h-screen w-full relative flex justify-center bg-gray-100">
-      {/* ── Inner Mobile App Container (Max 480px) ── */}
       <div
         className="w-full flex flex-col relative bg-white shadow-2xl overflow-hidden"
         style={{
@@ -1314,7 +1310,7 @@ const Register = () => {
           padding: "0px",
         }}
       >
-        {/* ✅ TRAPPED BACKGROUND: Now the background image is strictly inside the 480px app area! */}
+        {/* ✅ BACKGROUND IMAGE - 100% visible */}
         <div
           style={{
             position: "absolute",
@@ -1322,10 +1318,9 @@ const Register = () => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundImage: "url('/bg_image.png')", // Ensure image is loaded here
+            backgroundImage: "url('/bg_image.png')",
             backgroundSize: "cover",
             backgroundPosition: "center",
-            // opacity: 0.15, // Perfect watermark opacity
             opacity: 1,
             zIndex: 0,
             pointerEvents: "none",
@@ -1337,12 +1332,12 @@ const Register = () => {
           className="flex flex-col relative z-10"
           style={{
             backgroundColor: "#121212",
-            paddingBottom: "40px", // Reduced slightly
+            paddingBottom: "40px",
           }}
         >
           <div
             className="flex items-center"
-            style={{ padding: "30px 20px 15px 20px" }} // Tighter header padding
+            style={{ padding: "30px 20px 15px 20px" }}
           >
             <button
               onClick={() => (step === 2 ? setStep(1) : navigate("/login"))}
@@ -1415,7 +1410,7 @@ const Register = () => {
             src="/logo_2.png"
             alt="TikTok Shop Logo"
             style={{
-              width: "70px", // Slightly smaller for better mobile scale
+              width: "70px",
               height: "70px",
               borderRadius: "18px",
               border: "3px solid #fff",
@@ -1426,13 +1421,13 @@ const Register = () => {
           />
         </div>
 
-        {/* ── Transparent Form Content Area ── */}
+        {/* ✅ FULLY TRANSPARENT FORM AREA - background image 100% visible */}
         <div
           className="flex-1 flex flex-col relative z-10"
           style={{
-            padding: "20px 20px 40px 20px", // Reduced side padding to 20px for wider inputs
-            backgroundColor: "rgba(255,255,255,0.88)", // Let the trapped background shine through
-            backdropFilter: "blur(8px)",
+            padding: "20px 20px 40px 20px",
+            backgroundColor: "transparent", // ✅ CHANGED: fully transparent
+            backdropFilter: "none", // ✅ CHANGED: no blur blocking bg
           }}
         >
           {step === 1 ? (
@@ -1448,7 +1443,6 @@ const Register = () => {
                 Merchant Details
               </h2>
 
-              {/* ✅ REDUCED Y-GAP to 12px for native mobile feel */}
               <div className="flex flex-col" style={{ gap: "12px" }}>
                 <div>
                   <label style={labelStyle}>Username</label>
@@ -1470,8 +1464,9 @@ const Register = () => {
                         e.target.style.backgroundColor = "#fff";
                       }}
                       onBlur={(e) => {
-                        e.target.style.borderColor = "#e5e7eb";
-                        e.target.style.backgroundColor = "#f9fafb";
+                        e.target.style.borderColor = "rgba(229,231,235,0.8)";
+                        e.target.style.backgroundColor =
+                          "rgba(255,255,255,0.85)";
                       }}
                     />
                   </div>
@@ -1497,8 +1492,9 @@ const Register = () => {
                         e.target.style.backgroundColor = "#fff";
                       }}
                       onBlur={(e) => {
-                        e.target.style.borderColor = "#e5e7eb";
-                        e.target.style.backgroundColor = "#f9fafb";
+                        e.target.style.borderColor = "rgba(229,231,235,0.8)";
+                        e.target.style.backgroundColor =
+                          "rgba(255,255,255,0.85)";
                       }}
                     />
                   </div>
@@ -1524,8 +1520,9 @@ const Register = () => {
                         e.target.style.backgroundColor = "#fff";
                       }}
                       onBlur={(e) => {
-                        e.target.style.borderColor = "#e5e7eb";
-                        e.target.style.backgroundColor = "#f9fafb";
+                        e.target.style.borderColor = "rgba(229,231,235,0.8)";
+                        e.target.style.backgroundColor =
+                          "rgba(255,255,255,0.85)";
                       }}
                     />
                   </div>
@@ -1533,7 +1530,14 @@ const Register = () => {
 
                 <div>
                   <label style={labelStyle}>NID / Passport (Front)</label>
-                  <div className="relative bg-[#f9fafb] border border-[#e5e7eb] rounded-[10px] overflow-hidden transition-all focus-within:border-[#018784] focus-within:bg-white">
+                  <div
+                    className="relative overflow-hidden transition-all"
+                    style={{
+                      backgroundColor: "rgba(255,255,255,0.85)",
+                      border: "1px solid rgba(229,231,235,0.8)",
+                      borderRadius: "10px",
+                    }}
+                  >
                     <FileImage
                       size={16}
                       className="text-gray-400"
@@ -1551,6 +1555,7 @@ const Register = () => {
                         color: "#4b5563",
                         outline: "none",
                         cursor: "pointer",
+                        backgroundColor: "transparent",
                       }}
                     />
                   </div>
@@ -1558,7 +1563,14 @@ const Register = () => {
 
                 <div>
                   <label style={labelStyle}>NID / Passport (Back)</label>
-                  <div className="relative bg-[#f9fafb] border border-[#e5e7eb] rounded-[10px] overflow-hidden transition-all focus-within:border-[#018784] focus-within:bg-white">
+                  <div
+                    className="relative overflow-hidden transition-all"
+                    style={{
+                      backgroundColor: "rgba(255,255,255,0.85)",
+                      border: "1px solid rgba(229,231,235,0.8)",
+                      borderRadius: "10px",
+                    }}
+                  >
                     <FileImage
                       size={16}
                       className="text-gray-400"
@@ -1576,6 +1588,7 @@ const Register = () => {
                         color: "#4b5563",
                         outline: "none",
                         cursor: "pointer",
+                        backgroundColor: "transparent",
                       }}
                     />
                   </div>
@@ -1601,8 +1614,9 @@ const Register = () => {
                         e.target.style.backgroundColor = "#fff";
                       }}
                       onBlur={(e) => {
-                        e.target.style.borderColor = "#e5e7eb";
-                        e.target.style.backgroundColor = "#f9fafb";
+                        e.target.style.borderColor = "rgba(229,231,235,0.8)";
+                        e.target.style.backgroundColor =
+                          "rgba(255,255,255,0.85)";
                       }}
                     />
                     <button
@@ -1641,8 +1655,9 @@ const Register = () => {
                         e.target.style.backgroundColor = "#fff";
                       }}
                       onBlur={(e) => {
-                        e.target.style.borderColor = "#e5e7eb";
-                        e.target.style.backgroundColor = "#f9fafb";
+                        e.target.style.borderColor = "rgba(229,231,235,0.8)";
+                        e.target.style.backgroundColor =
+                          "rgba(255,255,255,0.85)";
                       }}
                     />
                     <button
@@ -1728,8 +1743,9 @@ const Register = () => {
                         e.target.style.backgroundColor = "#fff";
                       }}
                       onBlur={(e) => {
-                        e.target.style.borderColor = "#e5e7eb";
-                        e.target.style.backgroundColor = "#f9fafb";
+                        e.target.style.borderColor = "rgba(229,231,235,0.8)";
+                        e.target.style.backgroundColor =
+                          "rgba(255,255,255,0.85)";
                       }}
                     />
                   </div>
@@ -1762,8 +1778,9 @@ const Register = () => {
                         e.target.style.backgroundColor = "#fff";
                       }}
                       onBlur={(e) => {
-                        e.target.style.borderColor = "#e5e7eb";
-                        e.target.style.backgroundColor = "#f9fafb";
+                        e.target.style.borderColor = "rgba(229,231,235,0.8)";
+                        e.target.style.backgroundColor =
+                          "rgba(255,255,255,0.85)";
                       }}
                     />
                   </div>
@@ -1775,13 +1792,13 @@ const Register = () => {
                   </p>
                 </div>
 
-                {/* ── Summary Box (TikTok Teal Theme) ── */}
+                {/* ── Summary Box ── */}
                 <div
                   style={{
                     marginTop: "10px",
                     padding: "16px",
                     borderRadius: "10px",
-                    backgroundColor: "rgba(1, 135, 132, 0.05)",
+                    backgroundColor: "rgba(255,255,255,0.85)", // ✅ Semi-transparent
                     border: "1px dashed #018784",
                   }}
                 >
@@ -1825,11 +1842,7 @@ const Register = () => {
                     {formData.nidFront?.name || "Missing"}
                   </p>
                   <p
-                    style={{
-                      color: "#121212",
-                      fontSize: "12px",
-                      margin: "0",
-                    }}
+                    style={{ color: "#121212", fontSize: "12px", margin: "0" }}
                   >
                     <strong>NID Back:</strong>{" "}
                     {formData.nidBack?.name || "Missing"}
