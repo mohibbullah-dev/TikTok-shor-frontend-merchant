@@ -729,7 +729,7 @@ const Login = () => {
               </span>
             </div>
             {showLangDropdown && (
-              <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-100 shadow-lg rounded-md overflow-hidden z-50">
+              <div className="absolute right-0 mt-2 w-32 p-2 bg-white border border-gray-100 shadow-lg rounded-md overflow-hidden z-50">
                 {languages.map((lang) => (
                   <div
                     key={lang}
@@ -1058,14 +1058,14 @@ const Login = () => {
             </div>
 
             {/* Sub-links */}
-            <div className="flex items-center text-[12px] mt-[-6px] gap-1">
+            <div className="flex items-center text-[12px] mt-[-6px] gap-4">
               <Link
                 to="/forgot-password"
                 className="text-gray-500 hover:text-gray-800 transition-colors pr-2 "
               >
                 Forgot the password?
               </Link>
-              <div className="border-gray-100">|</div>
+              <div className="border-gray-50">|</div>
               <span
                 onClick={() =>
                   setAuthMethod(authMethod === "password" ? "code" : "password")
