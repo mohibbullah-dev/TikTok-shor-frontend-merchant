@@ -1067,7 +1067,7 @@ const Login = () => {
             <div className="flex items-center text-[12px] mt-[-6px] gap-4">
               <Link
                 to="/forgot-password"
-                className="text-gray-500 hover:text-gray-800 transition-colors pr-2 "
+                className="text-[14px] text-[#018784] font-medium cursor-pointer transition-colors pr-2 "
               >
                 Forgot the password?
               </Link>
