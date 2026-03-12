@@ -567,7 +567,6 @@
 // export default Login;
 
 ///////////////////// ==================== latest version (by gemeni) =======================//////////////////////
-
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
@@ -588,7 +587,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  // ✅ Added Language State (Visual only, matches Register)
+  // ✅ Added Language State (Visual only, exactly matching Register)
   const [language, setLanguage] = useState("US English");
   const [showLangDropdown, setShowLangDropdown] = useState(false);
   const languages = ["US English", "Bangla", "Hindi"];
@@ -646,13 +645,13 @@ const Login = () => {
     }
   };
 
-  // 🎨 UI CSS Variables (Exactly matching Register.jsx)
+  // 🎨 UI CSS Variables (Exactly matching the Official App screenshot)
   const inputStyle = {
     width: "100%",
     padding: "12px 14px",
     backgroundColor: "#ffffff",
     border: "1px solid #e5e7eb",
-    borderRadius: "4px",
+    borderRadius: "4px", // Crisp, small radius just like the demo
     fontSize: "14px",
     color: "#121212",
     outline: "none",
@@ -673,17 +672,21 @@ const Login = () => {
       {/* ── Inner Mobile App Container ── */}
       <div
         className="w-full flex flex-col bg-white overflow-x-hidden relative"
-        style={{ maxWidth: "480px", minHeight: "100vh", padding: "18px" }}
+        style={{ maxWidth: "480px", minHeight: "100vh" }}
       >
-        {/* ── Official Top Navigation Bar ── */}
+        {/* ── Official Top Navigation Bar (with Seller Center text) ── */}
         <div className="flex justify-between items-center px-5 py-4 relative z-20">
-          <div className="flex items-center">
-            {/* Same logo used in Register page */}
+          <div className="flex items-center gap-3">
+            {/* Exactly matching the screenshot logo & text format */}
             <img
-              src="/demo_logo.png"
+              src="/logo_like_demo.jpg"
               alt="TikTok Shop"
-              className="h-10 object-contain"
+              className="h-6 object-contain"
             />
+            <div className="w-[1px] h-4 bg-gray-300"></div>
+            <span className="text-[15px] font-semibold text-[#121212] tracking-tight">
+              Seller Center
+            </span>
           </div>
 
           <div className="relative">
@@ -716,30 +719,30 @@ const Login = () => {
         </div>
 
         {/* ── Centered Hero Illustration ── */}
-        <div className="flex flex-col items-center justify-center mt-6 mb-8">
+        <div className="flex flex-col items-center justify-center mt-10 mb-8">
           <img
-            src="/hero_image_like_demo.png"
+            src="/hero_image_like_demo.jpg"
             alt="Hero Illustration"
-            className="w-48 h-48 object-contain mb-4"
+            className="w-40 h-40 object-contain mb-4"
           />
           <h1 className="text-[22px] font-bold text-[#121212]">Log in</h1>
         </div>
 
         {/* ── Form Container ── */}
-        <div className="px-6 pb-12">
+        <div className="px-6 pb-12 w-full max-w-[400px] mx-auto">
           <form
             onSubmit={handleSubmit}
             className="flex flex-col"
             style={{ gap: "18px" }}
           >
-            {/* Email Field */}
+            {/* Email Field (Visually designed exactly like the demo) */}
             <div>
               <div className="flex justify-between items-end mb-1.5">
                 <label style={{ ...labelStyle, marginBottom: 0 }}>
                   Email Address
                 </label>
-                {/* Visual link matching the screenshot's layout */}
-                <span className="text-[12px] text-[#018784] font-medium cursor-pointer">
+                {/* Visual link matching the screenshot's top-right layout */}
+                <span className="text-[13px] text-[#018784] font-medium cursor-pointer hover:underline">
                   Log in with phone
                 </span>
               </div>
@@ -785,14 +788,15 @@ const Login = () => {
               </div>
             </div>
 
-            {/* Sub-links (Forgot password / Login with Code) */}
+            {/* Sub-links exactly matching the screenshot: "Forgot the password? | Log in with Code" */}
             <div className="flex items-center text-[12px] mt-[-6px]">
               <Link
                 to="/forgot-password"
-                className="text-gray-500 hover:text-gray-800 transition-colors pr-2 border-r border-gray-300"
+                className="text-gray-500 hover:text-gray-800 transition-colors pr-2"
               >
                 Forgot the password?
               </Link>
+              <span className="text-gray-300">|</span>
               <span className="text-gray-500 pl-2 cursor-pointer hover:text-gray-800 transition-colors">
                 Log in with Code
               </span>
@@ -802,9 +806,9 @@ const Login = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full text-white font-semibold border-none flex items-center justify-center transition-opacity mt-4"
+              className="w-full text-white font-medium border-none flex items-center justify-center transition-opacity mt-4"
               style={{
-                padding: "12px",
+                padding: "13px",
                 borderRadius: "4px",
                 fontSize: "15px",
                 backgroundColor: loading ? "#d1d5db" : "#018784", // Official TikTok Teal
@@ -823,8 +827,8 @@ const Login = () => {
           </form>
 
           {/* ── Sign Up Link ── */}
-          <div className="flex items-center justify-center mt-6 text-[13px] text-gray-500">
-            Don't have an account yet?{" "}
+          <div className="flex items-center justify-center mt-6 text-[13px] text-gray-600">
+            Don't have an account yet?
             <Link
               to="/register"
               className="font-medium ml-1"
