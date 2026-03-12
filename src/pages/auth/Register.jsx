@@ -1293,9 +1293,9 @@ const Register = () => {
 
   const labelStyle = {
     color: "#1f2937",
-    fontSize: "12px",
+    fontSize: "14px",
     fontWeight: "700",
-    marginBottom: "4px",
+    marginBottom: "2px",
     display: "block",
     letterSpacing: "0.2px",
   };
@@ -1450,7 +1450,7 @@ const Register = () => {
         <div
           className="flex-1 flex flex-col relative"
           style={{
-            padding: "2px 18px 40px 18px",
+            padding: "2px 0px 20px 0px",
             zIndex: 10,
             backgroundColor: "transparent",
           }}
