@@ -1359,7 +1359,7 @@ const Register = () => {
           }}
         >
           <div
-            className="flex items-center justify-between"
+            className="flex items-center"
             style={{ padding: "28px 18px 12px 18px" }}
           >
             <button
@@ -1377,7 +1377,7 @@ const Register = () => {
             >
               <ArrowLeft size={20} color="#fff" />
             </button>
-            <div className="flex flex-col items-center justify-center">
+            <div className="flex flex-col items-center justify-center ml-[100px]">
               <h1
                 className="font-bold text-white"
                 style={{ fontSize: "22px", marginTop: "4px" }}
