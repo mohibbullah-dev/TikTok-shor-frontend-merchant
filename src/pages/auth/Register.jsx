@@ -1377,17 +1377,17 @@ const Register = () => {
             >
               <ArrowLeft size={17} color="#fff" />
             </button>
-            <div className="flex items-center justify-center">
+            <div className="flex flex-col items-center justify-center">
               <h1
                 className="font-bold text-white"
-                style={{ fontSize: "17px", margin: 0 }}
+                style={{ fontSize: "22px", margin: 0 }}
               >
                 Create Account
               </h1>
               <p
                 style={{
                   color: "#018784",
-                  fontSize: "11px",
+                  fontSize: "16px",
                   fontWeight: "700",
                   margin: "2px 0 0 0",
                 }}
@@ -1435,8 +1435,8 @@ const Register = () => {
             src="/logo_2.png"
             alt="App Logo"
             style={{
-              width: "60px",
-              height: "60px",
+              width: "70px",
+              height: "70px",
               borderRadius: "15px",
               border: "3px solid #fff",
               boxShadow: "0 4px 14px rgba(0,0,0,0.18)",
