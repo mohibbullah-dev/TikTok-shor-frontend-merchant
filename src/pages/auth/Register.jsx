@@ -1359,15 +1359,15 @@ const Register = () => {
           }}
         >
           <div
-            className="flex items-center"
+            className="flex items-center justify-between"
             style={{ padding: "28px 18px 12px 18px" }}
           >
             <button
               onClick={() => (step === 2 ? setStep(1) : navigate("/login"))}
               className="flex items-center justify-center border-none cursor-pointer"
               style={{
-                width: "34px",
-                height: "34px",
+                width: "40px",
+                height: "40px",
                 backgroundColor: "rgba(255,255,255,0.1)",
                 borderRadius: "50%",
                 marginRight: "12px",
@@ -1375,12 +1375,12 @@ const Register = () => {
                 flexShrink: 0,
               }}
             >
-              <ArrowLeft size={17} color="#fff" />
+              <ArrowLeft size={20} color="#fff" />
             </button>
             <div className="flex flex-col items-center justify-center">
               <h1
                 className="font-bold text-white"
-                style={{ fontSize: "22px", margin: 0 }}
+                style={{ fontSize: "22px", marginTop: "4px" }}
               >
                 Create Account
               </h1>
@@ -1435,8 +1435,8 @@ const Register = () => {
             src="/logo_2.png"
             alt="App Logo"
             style={{
-              width: "70px",
-              height: "70px",
+              width: "80px",
+              height: "80px",
               borderRadius: "15px",
               border: "3px solid #fff",
               boxShadow: "0 4px 14px rgba(0,0,0,0.18)",
@@ -1468,7 +1468,7 @@ const Register = () => {
                 Seller Details
               </h2>
 
-              <div className="flex flex-col" style={{ gap: "5px" }}>
+              <div className="flex flex-col" style={{ gap: "0px" }}>
                 {/* Username */}
                 <div>
                   <label style={labelStyle}>Name</label>
