@@ -150,7 +150,7 @@ const Register = () => {
     <div className="min-h-screen w-full relative flex justify-center bg-gray-100">
       <div
         className="w-full flex flex-col bg-white overflow-x-hidden relative"
-        style={{ maxWidth: "480px", minHeight: "100vh" }}
+        style={{ maxWidth: "480px", minHeight: "100vh", padding: "40px" }}
       >
         {/* ── Official Top Navigation Bar ── */}
         <div className="flex justify-between items-center px-5 py-4 relative z-20">
@@ -596,9 +596,9 @@ const Register = () => {
                     }}
                   >
                     {showConfirmPassword ? (
-                      <EyeOff size={16} />
+                      <EyeOff size={20} />
                     ) : (
-                      <Eye size={16} />
+                      <Eye size={20} />
                     )}
                   </button>
                 </div>
@@ -673,7 +673,7 @@ const Register = () => {
                     margin: "0 0 10px 0",
                   }}
                 >
-                  <ClipboardCheck size={16} className="text-[#018784]" />{" "}
+                  <ClipboardCheck size={20} className="text-[#018784]" />{" "}
                   Summary
                 </p>
                 <p
@@ -707,7 +707,7 @@ const Register = () => {
                   className="flex items-center text-[#018784] font-medium"
                   style={{ fontSize: "13px", margin: "0" }}
                 >
-                  <CheckCircle2 size={14} className="mr-1" /> IDs Uploaded
+                  <CheckCircle2 size={20} className="mr-1" /> IDs Uploaded
                 </p>
               </div>
 
@@ -726,7 +726,7 @@ const Register = () => {
               >
                 {loading ? (
                   <>
-                    <Loader2 size={16} className="animate-spin" /> Creating...
+                    <Loader2 size={20} className="animate-spin" /> Creating...
                   </>
                 ) : (
                   "Register Store"
