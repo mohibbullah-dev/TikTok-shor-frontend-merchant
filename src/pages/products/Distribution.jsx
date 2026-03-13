@@ -322,6 +322,563 @@
 // export default Distribution;
 
 ////////////////// ============================= latest version (by gemeni) ==========================///////////////////
+// import { useState } from "react";
+// import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+// import { toast } from "react-toastify";
+// import { useDispatch, useSelector } from "react-redux";
+// import {
+//   addProduct,
+//   removeProduct,
+//   selectAll,
+//   clearCart,
+// } from "../../store/cartSlice";
+// import API from "../../api/axios";
+// import TopBar from "../../components/TopBar";
+// import { Search, Loader2, Package, Check, Flame } from "lucide-react";
+
+// const Distribution = () => {
+//   const dispatch = useDispatch();
+//   const { selectedProducts } = useSelector((state) => state.cart);
+//   console.log("selectedProducts :", selectedProducts);
+//   const queryClient = useQueryClient();
+
+//   const [activeCategory, setActiveCategory] = useState("all");
+//   const [searchQuery, setSearchQuery] = useState("");
+
+//   const categories = [
+//     { key: "all", label: "All" },
+//     { key: "Hot Selling", label: "🔥 Hot" },
+//     { key: "Computer accessories", label: "💻 Computer" },
+//     { key: "Home cabinets", label: "🏠 Home" },
+//     { key: "Health Products", label: "💊 Health" },
+//     { key: "Men's", label: "👔 Men" },
+//   ];
+
+//   const { data, isLoading } = useQuery({
+//     queryKey: ["distributionProducts", activeCategory],
+//     queryFn: async () => {
+//       const cat = activeCategory === "all" ? "" : activeCategory;
+//       const { data } = await API.get(
+//         `/products/distribution${cat ? `?category=${encodeURIComponent(cat)}` : ""}`,
+//       );
+//       return data;
+//     },
+//   });
+
+//   const distributeMutation = useMutation({
+//     mutationFn: async (productId) => {
+//       // AFTER:
+//       const { data } = await API.post(`/products/distribute/${productId}`);
+//       return data;
+//     },
+//     onSuccess: () => {
+//       toast.success("Product added to your store!");
+//       queryClient.invalidateQueries(["myProducts"]);
+//     },
+//     onError: (error) => {
+//       toast.error(error.response?.data?.message || "Already in your store");
+//     },
+//   });
+
+//   const bulkMutation = useMutation({
+//     mutationFn: async () => {
+//       const productIds = selectedProducts.map((p) => p._id);
+//       const { data } = await API.post("/products/distribute-bulk", {
+//         productIds,
+//       });
+//       return data;
+//     },
+//     onSuccess: (data) => {
+//       toast.success(`${data.message || "Products distributed successfully"}`);
+//       queryClient.invalidateQueries(["myProducts"]);
+//       dispatch(clearCart());
+//     },
+//     onError: () => toast.error("Bulk distribute failed"),
+//   });
+
+//   const products = data?.products || [];
+//   const filtered = searchQuery
+//     ? products.filter((p) =>
+//         p.title.toLowerCase().includes(searchQuery.toLowerCase()),
+//       )
+//     : products;
+
+//   const isSelected = (id) => selectedProducts.some((p) => p._id === id);
+
+//   const handleSelectAll = () => {
+//     if (selectedProducts.length === filtered.length) {
+//       dispatch(clearCart());
+//     } else {
+//       dispatch(selectAll(filtered));
+//     }
+//   };
+
+//   return (
+//     <div
+//       className="min-h-screen bg-gray-50 flex flex-col relative"
+//       style={{ margin: "0 auto", maxWidth: "620px", paddingBottom: "100px" }}
+//     >
+//       {/* ── Top Bar ── */}
+//       <div style={{ position: "sticky", top: 0, zIndex: 40 }}>
+//         <TopBar
+//           title="Distribution Center"
+//           backgroundColor="#1e293b"
+//           textColor="text-white"
+//           showBack={true}
+//         />
+
+//         {/* ── Search & Categories (Sticky Header Area) ── */}
+//         <div
+//           style={{
+//             backgroundColor: "#fff",
+//             padding: "16px",
+//             borderBottom: "1px solid #f1f5f9",
+//             boxShadow: "0 4px 15px rgba(0,0,0,0.03)",
+//           }}
+//         >
+//           <div style={{ position: "relative", marginBottom: "16px" }}>
+//             <Search
+//               size={18}
+//               color="#9ca3af"
+//               style={{
+//                 position: "absolute",
+//                 left: "16px",
+//                 top: "50%",
+//                 transform: "translateY(-50%)",
+//               }}
+//             />
+//             <input
+//               type="text"
+//               value={searchQuery}
+//               onChange={(e) => setSearchQuery(e.target.value)}
+//               placeholder="Search wholesale products..."
+//               style={{
+//                 width: "100%",
+//                 padding: "12px 16px 12px 42px",
+//                 backgroundColor: "#f8fafc",
+//                 border: "1px solid #e2e8f0",
+//                 borderRadius: "12px",
+//                 fontSize: "14px",
+//                 color: "#1e293b",
+//                 outline: "none",
+//                 transition: "all 0.2s",
+//               }}
+//               onFocus={(e) => (e.target.style.borderColor = "#f02d65")}
+//               onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
+//             />
+//           </div>
+
+//           <div
+//             style={{
+//               display: "flex",
+//               gap: "8px",
+//               overflowX: "auto",
+//               paddingBottom: "4px",
+//             }}
+//             className="custom-scrollbar"
+//           >
+//             {categories.map((cat) => (
+//               <button
+//                 key={cat.key}
+//                 onClick={() => setActiveCategory(cat.key)}
+//                 style={{
+//                   flexShrink: 0,
+//                   padding: "8px 16px",
+//                   borderRadius: "20px",
+//                   fontSize: "13px",
+//                   fontWeight: "bold",
+//                   border: "none",
+//                   cursor: "pointer",
+//                   transition: "all 0.2s",
+//                   background:
+//                     activeCategory === cat.key
+//                       ? "linear-gradient(135deg, #f02d65 0%, #ff6b35 100%)"
+//                       : "#f1f5f9",
+//                   color: activeCategory === cat.key ? "#fff" : "#64748b",
+//                   boxShadow:
+//                     activeCategory === cat.key
+//                       ? "0 4px 10px rgba(240, 45, 101, 0.2)"
+//                       : "none",
+//                 }}
+//               >
+//                 {cat.label}
+//               </button>
+//             ))}
+//           </div>
+//         </div>
+//       </div>
+
+//       {/* ── Product Grid ── */}
+//       <div style={{ padding: "16px" }}>
+//         {isLoading ? (
+//           <div
+//             style={{
+//               display: "grid",
+//               gridTemplateColumns: "1fr 1fr",
+//               gap: "12px",
+//             }}
+//           >
+//             {[...Array(6)].map((_, i) => (
+//               <div
+//                 key={i}
+//                 style={{
+//                   backgroundColor: "#fff",
+//                   borderRadius: "16px",
+//                   height: "240px",
+//                 }}
+//                 className="animate-pulse"
+//               />
+//             ))}
+//           </div>
+//         ) : filtered.length === 0 ? (
+//           <div style={{ textAlign: "center", padding: "60px 20px" }}>
+//             <Package
+//               size={48}
+//               color="#cbd5e1"
+//               style={{ margin: "0 auto 16px auto" }}
+//             />
+//             <p
+//               style={{
+//                 color: "#64748b",
+//                 fontSize: "15px",
+//                 fontWeight: "bold",
+//                 margin: 0,
+//               }}
+//             >
+//               No products found
+//             </p>
+//             <p style={{ color: "#94a3b8", fontSize: "13px", marginTop: "4px" }}>
+//               Try a different category or search term.
+//             </p>
+//           </div>
+//         ) : (
+//           <div
+//             style={{
+//               display: "grid",
+//               gridTemplateColumns: "1fr 1fr",
+//               gap: "12px",
+//             }}
+//           >
+//             {filtered.map((product) => {
+//               const selected = isSelected(product._id);
+//               return (
+//                 <div
+//                   key={product._id}
+//                   style={{
+//                     backgroundColor: "#fff",
+//                     borderRadius: "16px",
+//                     overflow: "hidden",
+//                     border: selected
+//                       ? "2px solid #f02d65"
+//                       : "2px solid transparent",
+//                     boxShadow: selected
+//                       ? "0 4px 15px rgba(240, 45, 101, 0.15)"
+//                       : "0 2px 10px rgba(0,0,0,0.03)",
+//                     transition: "all 0.2s",
+//                     position: "relative",
+//                   }}
+//                 >
+//                   <div
+//                     style={{
+//                       position: "relative",
+//                       height: "150px",
+//                       backgroundColor: "#f8fafc",
+//                     }}
+//                   >
+//                     {product.image ? (
+//                       <img
+//                         src={product.image}
+//                         alt={product.title}
+//                         style={{
+//                           width: "100%",
+//                           height: "100%",
+//                           objectFit: "cover",
+//                         }}
+//                       />
+//                     ) : (
+//                       <div
+//                         style={{
+//                           width: "100%",
+//                           height: "100%",
+//                           display: "flex",
+//                           alignItems: "center",
+//                           justifyContent: "center",
+//                         }}
+//                       >
+//                         <Package size={32} color="#cbd5e1" />
+//                       </div>
+//                     )}
+
+//                     <button
+//                       onClick={() =>
+//                         selected
+//                           ? dispatch(removeProduct(product._id))
+//                           : dispatch(addProduct(product))
+//                       }
+//                       style={{
+//                         position: "absolute",
+//                         top: "8px",
+//                         left: "8px",
+//                         width: "26px",
+//                         height: "26px",
+//                         borderRadius: "50%",
+//                         display: "flex",
+//                         alignItems: "center",
+//                         justifyContent: "center",
+//                         border: selected ? "none" : "2px solid #cbd5e1",
+//                         background: selected
+//                           ? "#f02d65"
+//                           : "rgba(255,255,255,0.8)",
+//                         cursor: "pointer",
+//                         padding: 0,
+//                       }}
+//                     >
+//                       {selected && (
+//                         <Check size={14} color="#fff" strokeWidth={3} />
+//                       )}
+//                     </button>
+
+//                     {product.isRecommended && (
+//                       <div
+//                         style={{
+//                           position: "absolute",
+//                           top: "8px",
+//                           right: "8px",
+//                           backgroundColor: "#f02d65",
+//                           color: "#fff",
+//                           padding: "4px 8px",
+//                           borderRadius: "12px",
+//                           fontSize: "10px",
+//                           fontWeight: "bold",
+//                           display: "flex",
+//                           alignItems: "center",
+//                           gap: "2px",
+//                           boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
+//                         }}
+//                       >
+//                         <Flame size={10} /> HOT
+//                       </div>
+//                     )}
+//                   </div>
+
+//                   <div style={{ padding: "12px" }}>
+//                     <p
+//                       style={{
+//                         color: "#1e293b",
+//                         fontSize: "12px",
+//                         fontWeight: "600",
+//                         margin: "0 0 8px 0",
+//                         display: "-webkit-box",
+//                         WebkitLineClamp: 2,
+//                         WebkitBoxOrient: "vertical",
+//                         overflow: "hidden",
+//                         lineHeight: "1.4",
+//                         height: "34px",
+//                       }}
+//                     >
+//                       {product.title}
+//                     </p>
+//                     <div
+//                       style={{
+//                         display: "flex",
+//                         justifyContent: "space-between",
+//                         alignItems: "flex-end",
+//                         marginBottom: "12px",
+//                       }}
+//                     >
+//                       <div>
+//                         <p
+//                           style={{
+//                             color: "#94a3b8",
+//                             fontSize: "10px",
+//                             margin: "0 0 2px 0",
+//                           }}
+//                         >
+//                           Selling Price
+//                         </p>
+//                         <span
+//                           style={{
+//                             color: "#f02d65",
+//                             fontSize: "14px",
+//                             fontWeight: "bold",
+//                             fontFamily: "monospace",
+//                           }}
+//                         >
+//                           ${product.salesPrice?.toFixed(2)}
+//                         </span>
+//                       </div>
+//                       <div style={{ textAlign: "right" }}>
+//                         <p
+//                           style={{
+//                             color: "#94a3b8",
+//                             fontSize: "10px",
+//                             margin: "0 0 2px 0",
+//                           }}
+//                         >
+//                           Profit
+//                         </p>
+//                         <span
+//                           style={{
+//                             color: "#10b981",
+//                             fontSize: "12px",
+//                             fontWeight: "bold",
+//                             fontFamily: "monospace",
+//                           }}
+//                         >
+//                           +${product.profit?.toFixed(2)}
+//                         </span>
+//                       </div>
+//                     </div>
+
+//                     <button
+//                       onClick={() => distributeMutation.mutate(product._id)}
+//                       disabled={distributeMutation.isPending}
+//                       style={{
+//                         width: "100%",
+//                         padding: "10px",
+//                         borderRadius: "10px",
+//                         fontSize: "12px",
+//                         fontWeight: "bold",
+//                         color: "#fff",
+//                         border: "none",
+//                         cursor: distributeMutation.isPending
+//                           ? "not-allowed"
+//                           : "pointer",
+//                         background: distributeMutation.isPending
+//                           ? "#cbd5e1"
+//                           : "#1e293b",
+//                         transition: "transform 0.1s",
+//                       }}
+//                       onMouseDown={(e) =>
+//                         (e.currentTarget.style.transform = "scale(0.95)")
+//                       }
+//                       onMouseUp={(e) =>
+//                         (e.currentTarget.style.transform = "scale(1)")
+//                       }
+//                     >
+//                       Distribution
+//                     </button>
+//                   </div>
+//                 </div>
+//               );
+//             })}
+//           </div>
+//         )}
+//       </div>
+
+//       {/* ── Bottom Bulk Bar ── */}
+//       <div
+//         style={{
+//           position: "fixed",
+//           bottom: 0,
+//           left: "50%",
+//           transform: "translateX(-50%)",
+//           width: "100%",
+//           maxWidth: "620px",
+//           backgroundColor: "#fff",
+//           borderTop: "1px solid #e2e8f0",
+//           padding: "16px 20px",
+//           zIndex: 50,
+//           boxShadow: "0 -4px 20px rgba(0,0,0,0.05)",
+//           display: "flex",
+//           alignItems: "center",
+//           justifyContent: "space-between",
+//         }}
+//       >
+//         <button
+//           onClick={handleSelectAll}
+//           style={{
+//             display: "flex",
+//             alignItems: "center",
+//             gap: "8px",
+//             background: "none",
+//             border: "none",
+//             cursor: "pointer",
+//             padding: 0,
+//           }}
+//         >
+//           <div
+//             style={{
+//               width: "24px",
+//               height: "24px",
+//               borderRadius: "50%",
+//               border:
+//                 selectedProducts.length === filtered.length &&
+//                 filtered.length > 0
+//                   ? "none"
+//                   : "2px solid #cbd5e1",
+//               background:
+//                 selectedProducts.length === filtered.length &&
+//                 filtered.length > 0
+//                   ? "#f02d65"
+//                   : "#fff",
+//               display: "flex",
+//               alignItems: "center",
+//               justifyContent: "center",
+//             }}
+//           >
+//             {selectedProducts.length === filtered.length &&
+//               filtered.length > 0 && (
+//                 <Check size={14} color="#fff" strokeWidth={3} />
+//               )}
+//           </div>
+//           <span
+//             style={{ color: "#64748b", fontSize: "14px", fontWeight: "600" }}
+//           >
+//             All
+//           </span>
+//         </button>
+
+//         <p
+//           style={{
+//             color: "#1e293b",
+//             fontSize: "14px",
+//             fontWeight: "bold",
+//             margin: 0,
+//           }}
+//         >
+//           {selectedProducts.length}{" "}
+//           <span style={{ color: "#94a3b8", fontWeight: "normal" }}>
+//             Selected
+//           </span>
+//         </p>
+
+//         <button
+//           onClick={() => bulkMutation.mutate()}
+//           disabled={selectedProducts.length === 0 || bulkMutation.isPending}
+//           style={{
+//             padding: "12px 24px",
+//             borderRadius: "12px",
+//             color: "#fff",
+//             fontWeight: "bold",
+//             fontSize: "14px",
+//             border: "none",
+//             cursor: selectedProducts.length === 0 ? "not-allowed" : "pointer",
+//             background:
+//               selectedProducts.length === 0
+//                 ? "#e2e8f0"
+//                 : "linear-gradient(135deg, #f02d65 0%, #ff6b35 100%)",
+//             boxShadow:
+//               selectedProducts.length === 0
+//                 ? "none"
+//                 : "0 4px 15px rgba(240, 45, 101, 0.3)",
+//           }}
+//         >
+//           {bulkMutation.isPending ? (
+//             <Loader2 size={16} className="animate-spin" />
+//           ) : (
+//             "Distribute All"
+//           )}
+//         </button>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Distribution;
+
+/////////////////// ========================= latest version 3 (by demeni) ======================////////////////////
+
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
@@ -339,7 +896,6 @@ import { Search, Loader2, Package, Check, Flame } from "lucide-react";
 const Distribution = () => {
   const dispatch = useDispatch();
   const { selectedProducts } = useSelector((state) => state.cart);
-  console.log("selectedProducts :", selectedProducts);
   const queryClient = useQueryClient();
 
   const [activeCategory, setActiveCategory] = useState("all");
@@ -367,7 +923,6 @@ const Distribution = () => {
 
   const distributeMutation = useMutation({
     mutationFn: async (productId) => {
-      // AFTER:
       const { data } = await API.post(`/products/distribute/${productId}`);
       return data;
     },
@@ -415,34 +970,42 @@ const Distribution = () => {
 
   return (
     <div
-      className="min-h-screen bg-gray-50 flex flex-col relative"
-      style={{ margin: "0 auto", maxWidth: "620px", paddingBottom: "100px" }}
+      className="min-h-screen bg-[#f8fafc] flex flex-col relative font-sans"
+      style={{ margin: "0 auto", maxWidth: "480px", paddingBottom: "100px" }}
     >
       {/* ── Top Bar ── */}
       <div style={{ position: "sticky", top: 0, zIndex: 40 }}>
-        <TopBar
+        {/* If your TopBar accepts color props, we set it to white/slate, otherwise it renders its default */}
+        {/* <TopBar
           title="Distribution Center"
-          backgroundColor="#1e293b"
-          textColor="text-white"
+          backgroundColor="#ffffff"
+          textColor="#0f172a"
           showBack={true}
-        />
+        /> */}
+
+        <TopBar title="Distribution Center" showBack={true} />
+        {/* <TopBar
+          title="Personal Info"
+          backgroundColor="#000"
+          textColor="#0f172a"
+        /> */}
 
         {/* ── Search & Categories (Sticky Header Area) ── */}
         <div
           style={{
-            backgroundColor: "#fff",
-            padding: "16px",
-            borderBottom: "1px solid #f1f5f9",
-            boxShadow: "0 4px 15px rgba(0,0,0,0.03)",
+            backgroundColor: "rgba(255, 255, 255, 0.95)",
+            backdropFilter: "blur(8px)",
+            padding: "5px 5px",
+            borderBottom: "1px solid #e2e8f0",
           }}
         >
-          <div style={{ position: "relative", marginBottom: "16px" }}>
+          <div style={{ position: "relative", marginBottom: "10px" }}>
             <Search
-              size={18}
-              color="#9ca3af"
+              size={16}
+              color="#94a3b8"
               style={{
                 position: "absolute",
-                left: "16px",
+                left: "14px",
                 top: "50%",
                 transform: "translateY(-50%)",
               }}
@@ -454,16 +1017,17 @@ const Distribution = () => {
               placeholder="Search wholesale products..."
               style={{
                 width: "100%",
-                padding: "12px 16px 12px 42px",
-                backgroundColor: "#f8fafc",
+                padding: "10px 6px 10px 36px",
+                backgroundColor: "#ffffff",
                 border: "1px solid #e2e8f0",
-                borderRadius: "12px",
+                borderRadius: "8px",
                 fontSize: "14px",
-                color: "#1e293b",
+                color: "#0f172a",
                 outline: "none",
-                transition: "all 0.2s",
+                transition: "border-color 0.2s",
+                boxShadow: "0 1px 2px rgba(0,0,0,0.02)",
               }}
-              onFocus={(e) => (e.target.style.borderColor = "#f02d65")}
+              onFocus={(e) => (e.target.style.borderColor = "#018784")}
               onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
             />
           </div>
@@ -483,21 +1047,20 @@ const Distribution = () => {
                 onClick={() => setActiveCategory(cat.key)}
                 style={{
                   flexShrink: 0,
-                  padding: "8px 16px",
+                  padding: "3.5px 10px",
                   borderRadius: "20px",
                   fontSize: "13px",
-                  fontWeight: "bold",
-                  border: "none",
+                  fontWeight: "600",
+                  border:
+                    activeCategory === cat.key ? "none" : "1px solid #e2e8f0",
                   cursor: "pointer",
                   transition: "all 0.2s",
                   background:
-                    activeCategory === cat.key
-                      ? "linear-gradient(135deg, #f02d65 0%, #ff6b35 100%)"
-                      : "#f1f5f9",
-                  color: activeCategory === cat.key ? "#fff" : "#64748b",
+                    activeCategory === cat.key ? "#018784" : "#ffffff",
+                  color: activeCategory === cat.key ? "#ffffff" : "#64748b",
                   boxShadow:
                     activeCategory === cat.key
-                      ? "0 4px 10px rgba(240, 45, 101, 0.2)"
+                      ? "0 4px 10px rgba(1,135,132,0.2)"
                       : "none",
                 }}
               >
@@ -509,7 +1072,7 @@ const Distribution = () => {
       </div>
 
       {/* ── Product Grid ── */}
-      <div style={{ padding: "16px" }}>
+      <div style={{ padding: "10px 3.5px" }}>
         {isLoading ? (
           <div
             style={{
@@ -523,8 +1086,9 @@ const Distribution = () => {
                 key={i}
                 style={{
                   backgroundColor: "#fff",
-                  borderRadius: "16px",
+                  borderRadius: "12px",
                   height: "240px",
+                  border: "1px solid #e2e8f0",
                 }}
                 className="animate-pulse"
               />
@@ -539,15 +1103,15 @@ const Distribution = () => {
             />
             <p
               style={{
-                color: "#64748b",
+                color: "#0f172a",
                 fontSize: "15px",
-                fontWeight: "bold",
+                fontWeight: "700",
                 margin: 0,
               }}
             >
               No products found
             </p>
-            <p style={{ color: "#94a3b8", fontSize: "13px", marginTop: "4px" }}>
+            <p style={{ color: "#64748b", fontSize: "13px", marginTop: "4px" }}>
               Try a different category or search term.
             </p>
           </div>
@@ -565,23 +1129,25 @@ const Distribution = () => {
                 <div
                   key={product._id}
                   style={{
-                    backgroundColor: "#fff",
-                    borderRadius: "16px",
+                    backgroundColor: "#ffffff",
+                    borderRadius: "12px",
                     overflow: "hidden",
                     border: selected
-                      ? "2px solid #f02d65"
-                      : "2px solid transparent",
+                      ? "2px solid #018784"
+                      : "1px solid #e2e8f0",
                     boxShadow: selected
-                      ? "0 4px 15px rgba(240, 45, 101, 0.15)"
-                      : "0 2px 10px rgba(0,0,0,0.03)",
+                      ? "0 4px 15px rgba(1, 135, 132, 0.15)"
+                      : "0 1px 3px rgba(0,0,0,0.02)",
                     transition: "all 0.2s",
                     position: "relative",
+                    display: "flex",
+                    flexDirection: "column",
                   }}
                 >
                   <div
                     style={{
                       position: "relative",
-                      height: "150px",
+                      height: "100px",
                       backgroundColor: "#f8fafc",
                     }}
                   >
@@ -619,22 +1185,22 @@ const Distribution = () => {
                         position: "absolute",
                         top: "8px",
                         left: "8px",
-                        width: "26px",
-                        height: "26px",
+                        width: "20px",
+                        height: "20px",
                         borderRadius: "50%",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
                         border: selected ? "none" : "2px solid #cbd5e1",
                         background: selected
-                          ? "#f02d65"
-                          : "rgba(255,255,255,0.8)",
+                          ? "#018784"
+                          : "rgba(255,255,255,0.9)",
                         cursor: "pointer",
                         padding: 0,
                       }}
                     >
                       {selected && (
-                        <Check size={14} color="#fff" strokeWidth={3} />
+                        <Check size={12} color="#fff" strokeWidth={3} />
                       )}
                     </button>
 
@@ -644,16 +1210,16 @@ const Distribution = () => {
                           position: "absolute",
                           top: "8px",
                           right: "8px",
-                          backgroundColor: "#f02d65",
+                          backgroundColor: "#ea580c", // Amber/Orange for Hot
                           color: "#fff",
                           padding: "4px 8px",
                           borderRadius: "12px",
-                          fontSize: "10px",
-                          fontWeight: "bold",
+                          fontSize: "9px",
+                          fontWeight: "800",
                           display: "flex",
                           alignItems: "center",
                           gap: "2px",
-                          boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
+                          boxShadow: "0 2px 5px rgba(234, 88, 12, 0.3)",
                         }}
                       >
                         <Flame size={10} /> HOT
@@ -661,19 +1227,26 @@ const Distribution = () => {
                     )}
                   </div>
 
-                  <div style={{ padding: "12px" }}>
+                  <div
+                    style={{
+                      padding: "5px",
+                      display: "flex",
+                      flexDirection: "column",
+                      flex: 1,
+                    }}
+                  >
                     <p
                       style={{
-                        color: "#1e293b",
-                        fontSize: "12px",
-                        fontWeight: "600",
-                        margin: "0 0 8px 0",
+                        color: "#0f172a",
+                        fontSize: "13px",
+                        fontWeight: "700",
+                        margin: "0 0 12px 0",
                         display: "-webkit-box",
                         WebkitLineClamp: 2,
                         WebkitBoxOrient: "vertical",
                         overflow: "hidden",
                         lineHeight: "1.4",
-                        height: "34px",
+                        height: "0px",
                       }}
                     >
                       {product.title}
@@ -684,24 +1257,25 @@ const Distribution = () => {
                         justifyContent: "space-between",
                         alignItems: "flex-end",
                         marginBottom: "12px",
+                        marginTop: "auto",
                       }}
                     >
                       <div>
                         <p
                           style={{
-                            color: "#94a3b8",
+                            color: "#64748b",
                             fontSize: "10px",
-                            margin: "0 0 2px 0",
+                            margin: "0 0 0px 0",
+                            fontWeight: "600",
                           }}
                         >
                           Selling Price
                         </p>
                         <span
                           style={{
-                            color: "#f02d65",
+                            color: "#0f172a",
                             fontSize: "14px",
-                            fontWeight: "bold",
-                            fontFamily: "monospace",
+                            fontWeight: "800",
                           }}
                         >
                           ${product.salesPrice?.toFixed(2)}
@@ -710,19 +1284,19 @@ const Distribution = () => {
                       <div style={{ textAlign: "right" }}>
                         <p
                           style={{
-                            color: "#94a3b8",
+                            color: "#64748b",
                             fontSize: "10px",
-                            margin: "0 0 2px 0",
+                            margin: "0 0 0px 0",
+                            fontWeight: "600",
                           }}
                         >
                           Profit
                         </p>
                         <span
                           style={{
-                            color: "#10b981",
-                            fontSize: "12px",
-                            fontWeight: "bold",
-                            fontFamily: "monospace",
+                            color: "#018784",
+                            fontSize: "13px",
+                            fontWeight: "800",
                           }}
                         >
                           +${product.profit?.toFixed(2)}
@@ -735,10 +1309,10 @@ const Distribution = () => {
                       disabled={distributeMutation.isPending}
                       style={{
                         width: "100%",
-                        padding: "10px",
-                        borderRadius: "10px",
+                        padding: "5px",
+                        borderRadius: "8px",
                         fontSize: "12px",
-                        fontWeight: "bold",
+                        fontWeight: "700",
                         color: "#fff",
                         border: "none",
                         cursor: distributeMutation.isPending
@@ -746,17 +1320,21 @@ const Distribution = () => {
                           : "pointer",
                         background: distributeMutation.isPending
                           ? "#cbd5e1"
-                          : "#1e293b",
+                          : "#018784", // Teal Button
                         transition: "transform 0.1s",
                       }}
                       onMouseDown={(e) =>
-                        (e.currentTarget.style.transform = "scale(0.95)")
+                        (e.currentTarget.style.transform = "scale(0.96)")
                       }
                       onMouseUp={(e) =>
                         (e.currentTarget.style.transform = "scale(1)")
                       }
                     >
-                      Distribution
+                      {distributeMutation.isPending ? (
+                        <Loader2 size={14} className="animate-spin mx-auto" />
+                      ) : (
+                        "Distribute"
+                      )}
                     </button>
                   </div>
                 </div>
@@ -774,12 +1352,13 @@ const Distribution = () => {
           left: "50%",
           transform: "translateX(-50%)",
           width: "100%",
-          maxWidth: "620px",
-          backgroundColor: "#fff",
+          maxWidth: "480px",
+          backgroundColor: "rgba(255, 255, 255, 0.95)",
+          backdropFilter: "blur(10px)",
           borderTop: "1px solid #e2e8f0",
           padding: "16px 20px",
           zIndex: 50,
-          boxShadow: "0 -4px 20px rgba(0,0,0,0.05)",
+          boxShadow: "0 -4px 20px rgba(0,0,0,0.03)",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
@@ -810,7 +1389,7 @@ const Distribution = () => {
               background:
                 selectedProducts.length === filtered.length &&
                 filtered.length > 0
-                  ? "#f02d65"
+                  ? "#018784"
                   : "#fff",
               display: "flex",
               alignItems: "center",
@@ -819,7 +1398,7 @@ const Distribution = () => {
           >
             {selectedProducts.length === filtered.length &&
               filtered.length > 0 && (
-                <Check size={14} color="#fff" strokeWidth={3} />
+                <Check size={12} color="#fff" strokeWidth={3} />
               )}
           </div>
           <span
@@ -831,37 +1410,32 @@ const Distribution = () => {
 
         <p
           style={{
-            color: "#1e293b",
+            color: "#0f172a",
             fontSize: "14px",
-            fontWeight: "bold",
+            fontWeight: "800",
             margin: 0,
           }}
         >
           {selectedProducts.length}{" "}
-          <span style={{ color: "#94a3b8", fontWeight: "normal" }}>
-            Selected
-          </span>
+          <span style={{ color: "#64748b", fontWeight: "500" }}>Selected</span>
         </p>
 
         <button
           onClick={() => bulkMutation.mutate()}
           disabled={selectedProducts.length === 0 || bulkMutation.isPending}
           style={{
-            padding: "12px 24px",
-            borderRadius: "12px",
+            padding: "5px 5px",
+            borderRadius: "8px",
             color: "#fff",
-            fontWeight: "bold",
+            fontWeight: "700",
             fontSize: "14px",
             border: "none",
             cursor: selectedProducts.length === 0 ? "not-allowed" : "pointer",
-            background:
-              selectedProducts.length === 0
-                ? "#e2e8f0"
-                : "linear-gradient(135deg, #f02d65 0%, #ff6b35 100%)",
+            background: selectedProducts.length === 0 ? "#cbd5e1" : "#018784",
             boxShadow:
               selectedProducts.length === 0
                 ? "none"
-                : "0 4px 15px rgba(240, 45, 101, 0.3)",
+                : "0 4px 12px rgba(1, 135, 132, 0.3)",
           }}
         >
           {bulkMutation.isPending ? (

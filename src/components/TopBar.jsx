@@ -1,40 +1,79 @@
 import { useNavigate } from "react-router-dom";
+import { ChevronLeft } from "lucide-react";
 
 const TopBar = ({
   title,
   showBack = true,
   rightElement = null,
-  backgroundColor = "white",
-  textColor = "text-gray-800",
+  backgroundColor = "#018784",
+  textColor = "#ffffff",
+  showDot = false,
 }) => {
   const navigate = useNavigate();
 
   return (
     <div
-      className={`sticky top-0 z-40 flex items-center justify-between
-      px-4 py-3.5 shadow-sm`}
-      style={{ backgroundColor }}
+      className="sticky top-0 z-40 flex items-center justify-between px-4"
+      style={{
+        backgroundColor,
+        borderBottom: "0.5px solid rgba(255,255,255,0.15)",
+        height: "54px",
+      }}
     >
-      {/* Left: Back Button */}
-      <div className="w-10">
+      {/* Left: back + title */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+          padding: "6px",
+        }}
+      >
         {showBack && (
           <button
             onClick={() => navigate(-1)}
-            className="w-9 h-9 flex items-center justify-center
-              rounded-full bg-gray-100 active:bg-gray-200 transition-all"
+            style={{
+              width: "34px",
+              height: "34px",
+              borderRadius: "10px",
+              border: "0.5px solid rgba(255,255,255,0.3)",
+              backgroundColor: "rgba(255,255,255,0.15)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              flexShrink: 0,
+              transition: "background 0.15s",
+            }}
+            onMouseDown={(e) =>
+              (e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.25)")
+            }
+            onMouseUp={(e) =>
+              (e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.15)")
+            }
           >
-            <span className="text-gray-600 text-lg">←</span>
+            <ChevronLeft size={16} color="#ffffff" strokeWidth={2.2} />
           </button>
         )}
+        <span style={{ fontSize: "15px", fontWeight: "500", color: textColor }}>
+          {title}
+        </span>
       </div>
 
-      {/* Center: Title */}
-      <h1 className={`text-base font-bold ${textColor} flex-1 text-center`}>
-        {title}
-      </h1>
-
-      {/* Right: Optional element */}
-      <div className="w-10 flex justify-end">{rightElement}</div>
+      {/* Right */}
+      <div style={{ display: "flex", alignItems: "center" }}>
+        {rightElement ??
+          (showDot && (
+            <div
+              style={{
+                width: "8px",
+                height: "8px",
+                borderRadius: "50%",
+                backgroundColor: "rgba(255,255,255,0.8)",
+              }}
+            />
+          ))}
+      </div>
     </div>
   );
 };

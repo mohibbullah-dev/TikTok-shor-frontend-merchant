@@ -225,7 +225,15 @@ import { toast } from "react-toastify";
 import API from "../../api/axios";
 import { updateMerchant } from "../../store/authSlice";
 import TopBar from "../../components/TopBar";
-import { User, Phone, Store, Camera, Loader2, Save } from "lucide-react";
+import {
+  User,
+  Phone,
+  Store,
+  Camera,
+  Loader2,
+  Save,
+  SquarePen,
+} from "lucide-react";
 
 export default function PersonalInfo() {
   const dispatch = useDispatch();
@@ -256,9 +264,7 @@ export default function PersonalInfo() {
     try {
       const fd = new FormData();
       fd.append("file", file);
-      const { data } = await API.post("/upload/single?folder=avatars", fd, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const { data } = await API.post("/upload/single?folder=avatars", fd);
       setFormData({ ...formData, storeLogo: data.url });
       toast.success("Image uploaded!");
     } catch {
@@ -271,7 +277,12 @@ export default function PersonalInfo() {
   const updateMutation = useMutation({
     mutationFn: async () => {
       // Assuming you have a route to update profile/merchant details
-      const { data } = await API.put("/merchants/profile", formData);
+      // const { data } = await API.put("/merchants/profile", formData);
+      const { data } = await API.put("/merchants/my-store", {
+        storeName: formData.storeName,
+        storeLogo: formData.storeLogo,
+        storePhone: formData.mobile,
+      });
       return data;
     },
     onSuccess: (data) => {
@@ -419,13 +430,19 @@ export default function PersonalInfo() {
               />
               <input
                 type="text"
+                readOnly
                 value={formData.storeName}
                 onChange={(e) =>
                   setFormData({ ...formData, storeName: e.target.value })
                 }
-                style={inputStyle}
-                onFocus={(e) => (e.target.style.borderColor = "#f02d65")}
-                onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
+                style={{
+                  ...inputStyle,
+                  backgroundColor: "#f1f5f9",
+                  color: "#94a3b8",
+                  cursor: "not-allowed",
+                }}
+                // onFocus={(e) => (e.target.style.borderColor = "#f02d65")}
+                // onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
               />
             </div>
           </div>
@@ -440,7 +457,7 @@ export default function PersonalInfo() {
                 marginBottom: "8px",
               }}
             >
-              Username (Read Only)
+              Name (Read Only)
             </label>
             <div style={{ position: "relative" }}>
               <User
@@ -493,12 +510,18 @@ export default function PersonalInfo() {
               <input
                 type="tel"
                 value={formData.mobile}
+                readOnly
                 onChange={(e) =>
                   setFormData({ ...formData, mobile: e.target.value })
                 }
-                style={inputStyle}
-                onFocus={(e) => (e.target.style.borderColor = "#f02d65")}
-                onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
+                style={{
+                  ...inputStyle,
+                  backgroundColor: "#f1f5f9",
+                  color: "#94a3b8",
+                  cursor: "not-allowed",
+                }}
+                // onFocus={(e) => (e.target.style.borderColor = "#f02d65")}
+                // onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
               />
             </div>
           </div>
@@ -533,7 +556,7 @@ export default function PersonalInfo() {
             <Loader2 className="animate-spin" size={18} />
           ) : (
             <>
-              <Save size={18} /> Save Changes
+              <SquarePen size={18} /> Save Changes
             </>
           )}
         </button>

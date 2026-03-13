@@ -16,6 +16,7 @@ import {
   Check,
   CreditCard,
   ScanLine,
+  BadgeCheck,
 } from "lucide-react";
 
 const Register = () => {
@@ -115,9 +116,8 @@ const Register = () => {
       submitData.append("nidFront", formData.nidFront);
       submitData.append("nidBack", formData.nidBack);
 
-      await API.post("/auth/register", submitData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      // ✅ FIX: Removed manual headers! Let Axios auto-detect the FormData boundary.
+      await API.post("/auth/register", submitData);
 
       toast.success("Registration successful! Please login.");
       navigate("/login");
@@ -127,7 +127,6 @@ const Register = () => {
       setLoading(false);
     }
   };
-
   const inputStyle = {
     width: "100%",
     padding: "12px 14px",
@@ -159,13 +158,13 @@ const Register = () => {
         {/* ── Official Top Navigation Bar ── */}
         <div className="flex justify-between items-center px-5 py-4 relative z-20">
           <div className="flex items-center">
-            {step === 2 && (
+            {/* {step === 2 && (
               <ArrowLeft
                 size={20}
                 className="mr-3 cursor-pointer text-gray-800 hover:text-gray-600"
                 onClick={() => setStep(1)}
               />
-            )}
+            )} */}
             {/* ✅ NEW: Using the exact uploaded logo image */}
             <img
               src="/demo_logo.png"
@@ -213,7 +212,7 @@ const Register = () => {
         <div className="flex flex-col items-center justify-center mt-2 mb-6">
           {/* ✅ NEW: Using the exact uploaded hero illustration */}
           <img
-            src="/hero_image_like_demo.png"
+            src="/bg_image.png"
             alt="Hero Illustration"
             className="w-48 h-48 object-contain mb-2" // Slightly larger to match the demo's visual weight
           />
@@ -821,31 +820,51 @@ const Register = () => {
                   Summary
                 </p>
                 <p
+                  className="flex items-center justify-between"
                   style={{
                     color: "#4b5563",
                     fontSize: "13px",
                     margin: "0 0 6px 0",
                   }}
                 >
-                  <strong>User:</strong> {formData.username}
+                  <div>
+                    <strong>Name:</strong> {formData.username}
+                  </div>
+                  <div>
+                    <BadgeCheck size={20} className="text-green-500" />{" "}
+                  </div>
                 </p>
                 <p
+                  className="flex items-center justify-between"
                   style={{
                     color: "#4b5563",
                     fontSize: "13px",
                     margin: "0 0 6px 0",
                   }}
                 >
-                  <strong>Phone:</strong> {countryCode} {formData.mobile}
+                  <div>
+                    <strong>Phone:</strong> {countryCode} {formData.mobile}
+                  </div>
+                  <div>
+                    <BadgeCheck size={20} className="text-green-500" />
+                  </div>
                 </p>
                 <p
+                  className="flex items-center justify-between"
                   style={{
                     color: "#4b5563",
                     fontSize: "13px",
                     margin: "0 0 6px 0",
                   }}
                 >
-                  <strong>Address:</strong> {formData.storeAddress}
+                  <div>
+                    {" "}
+                    <strong>Email:</strong> {formData.storeAddress}{" "}
+                  </div>
+                  <div>
+                    {" "}
+                    <BadgeCheck size={20} className="text-green-500" />{" "}
+                  </div>
                 </p>
                 <p
                   className="flex items-center text-[#018784] font-medium"
@@ -887,7 +906,11 @@ const Register = () => {
             <Link
               to="/login"
               className="font-medium ml-1"
-              style={{ color: "#018784", textDecoration: "none" }}
+              style={{
+                color: "#018784",
+                textDecoration: "none",
+                marginLeft: "2px",
+              }}
             >
               Log in
             </Link>

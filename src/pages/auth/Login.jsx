@@ -627,14 +627,24 @@ const Login = () => {
     setLoading(true);
     try {
       // ✅ Prepare payload based on what the user selected
+      // const payload = {
+      //   email: formData.email,
+      //   mobile:
+      //     loginMethod === "phone"
+      //       ? `${countryCode} ${formData.mobile}`
+      //       : undefined,
+      //   password: formData.password,
+      //   code: formData.code,
+      //   loginMethod,
+      //   authMethod,
+      // };
       const payload = {
-        email: formData.email,
-        mobile:
-          loginMethod === "phone"
-            ? `${countryCode} ${formData.mobile}`
-            : undefined,
-        password: formData.password,
-        code: formData.code,
+        ...(loginMethod === "email" && { email: formData.email }),
+        ...(loginMethod === "phone" && {
+          mobile: `${countryCode} ${formData.mobile}`,
+        }),
+        ...(authMethod === "password" && { password: formData.password }),
+        ...(authMethod === "code" && { code: formData.code }),
         loginMethod,
         authMethod,
       };
@@ -712,7 +722,7 @@ const Login = () => {
               alt="TikTok Shop"
               className="h-10 object-contain"
             />
-            <div className="w-[1px] h-4 bg-gray-300"></div>
+            {/* <div className="w-[1px] h-4 bg-gray-300"></div> */}
             {/* <span className="text-[15px] font-semibold text-[#121212] tracking-tight">
               Seller Center
             </span> */}
@@ -756,7 +766,7 @@ const Login = () => {
         {/* ── Centered Hero Illustration ── */}
         <div className="flex flex-col items-center justify-center mt-10 mb-8">
           <img
-            src="/hero_image_like_demo.png"
+            src="/bg_image.png"
             alt="Hero Illustration"
             className="w-40 h-40 object-contain mb-4"
           />
@@ -1067,7 +1077,7 @@ const Login = () => {
             <div className="flex items-center text-[12px] mt-[-6px] gap-4">
               <Link
                 to="/forgot-password"
-                className="text-[14px] text-[#018784] font-medium cursor-pointer transition-colors pr-2 "
+                className="text-[14px] hover:text-[#018784] font-medium cursor-pointer transition-colors pr-2 "
               >
                 Forgot the password?
               </Link>
@@ -1076,7 +1086,7 @@ const Login = () => {
                 onClick={() =>
                   setAuthMethod(authMethod === "password" ? "code" : "password")
                 }
-                className="text-gray-500 pl-2 cursor-pointer hover:text-gray-800 transition-colors"
+                className="text-[14px] hover:text-[#018784] font-medium cursor-pointer transition-colors pr-2 "
               >
                 {authMethod === "password"
                   ? "Log in with Code"
